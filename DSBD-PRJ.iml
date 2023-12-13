@@ -6,4 +6,12 @@
     <orderEntry type="jdk" jdkName="C:\Users\Francesco Denaro\Python\Python312\python.exe" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
+  <component name="PyNamespacePackagesService">
+    <option name="namespacePackageFolders">
+      <list>
+        <option value="$MODULE_DIR$/publisher_service" />
+        <option value="$MODULE_DIR$/subscriber_service" />
+      </list>
+    </option>
+  </component>
 </module>

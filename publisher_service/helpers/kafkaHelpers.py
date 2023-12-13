@@ -1,11 +1,13 @@
 from confluent_kafka import Producer
-from config import kafka as kafka_config
-from flask import jsonify
+from ..config import kafka as kafka_config
+
+
 def delivery_callback(err, msg):
     if err:
         print(err)
     else:
         print('kafka msg sended')
+
 
 def sendKafkaMessage(topic, msg):
     # Create Producer instance

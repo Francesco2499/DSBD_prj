@@ -1,41 +1,43 @@
-from confluent_kafka import Consumer, KafkaException
-from config import kafka as kafka_configs
 from flask import Flask, jsonify, request
+from helpers import kafkaHelpers
 import threading
+import jwt
 
 app = Flask(__name__)
 
-valid_access_tokens={}
+# Chiave segreta per verificare i token JWT
+SECRET_KEY = 'your_secret_key'
 
 
-def subscribe_to_topic(topic_name):
+# Funzione per verificare il token JWT
+def verify_token(token):
     try:
-        kafka_configs.consumer_config['group.id'] = f'{topic_name}_group'
-        consumer = Consumer(kafka_configs.consumer_config)
-        consumer.subscribe([topic_name])
+        decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        user_id = decoded_token.get('user_id')
+        # Qui potresti fare ulteriori verifiche, come verificare l'accesso ai topic, etc.
+        return True, user_id
+    except jwt.ExpiredSignatureError:
+        return False, None
+    except jwt.InvalidTokenError:
+        return False, None
 
-        while True:
-            msg = consumer.poll(1.0)
-            if msg is None:
-                continue
-            if msg.error():
-                print("Consumer error: {}".format(msg.error()))
-                continue
-            print(f'Received message from {topic_name}: {msg.value().decode("utf-8")}')
-
-        consumer.close()
-    except Exception as e:
-        print(f'Exception in subscribing to {topic_name}: {str(e)}')
 
 @app.route('/subscribe', methods=['GET'])
 def subscribe_to_chosen_topic():
     try:
         access_token = request.headers.get('Authorization')  # Ottieni il token di accesso dall'header Authorization
-        if access_token in valid_access_tokens.values():
+
+        if not access_token or not access_token.startswith('Bearer '):
+            return jsonify({"success": False, "error": "Invalid token"}), 401
+
+        token = access_token.split(' ')[1]
+
+        is_valid, user_id = verify_token(token)
+        if is_valid:
             category = request.args.get('category', 'general')  # Se non specificata, default a 'news'
             topic_name = f'{category}_topic'
 
-            thread = threading.Thread(target=subscribe_to_topic, args=(topic_name,))
+            thread = threading.Thread(target=kafkaHelpers.subscribe_to_topic, args=(topic_name,))
             thread.start()
 
             return jsonify({'success': True, 'message': f'Subscribed to {category} topic successfully'})
