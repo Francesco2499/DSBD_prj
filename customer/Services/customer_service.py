@@ -1,3 +1,4 @@
+import requests
 from Models.customer_model import CustomerModel
 from Models.customer_repository import Customer, CustomerRepository
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -40,7 +41,20 @@ class CustomerService:
     def customer_auth(self, customer, password):
         result = False
         if(check_password_hash(customer.password, password)):
-            return {"message": "Authentication successful"}
+            authentication_service_url = 'http://localhost:5002/authenticate'
+            payload = {'user_id': customer.customer_id}
+
+            try:
+                response = requests.post(authentication_service_url, json=payload)
+                response_data = response.json()
+
+                if (response.status_code == 200):
+                    return{"message": 'Authentication successful', "token": response_data.get('token')}
+                else:
+                    return{"message": 'Authentication failed:', "Error": response_data}
+
+            except requests.exceptions.RequestException as e:
+                return('Error during authentication:', e)
         else:
             #password errata
             return {"error": "Invalid name or password"}

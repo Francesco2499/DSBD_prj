@@ -1,5 +1,4 @@
-from flask import Flask, request, jsonify
-from Models.customer_model import CustomerModel
+from flask import  request, jsonify
 from Services.customer_service import CustomerService
 from werkzeug.security import check_password_hash, generate_password_hash
 
