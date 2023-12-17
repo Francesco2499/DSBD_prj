@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  authentication:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: 'python authentication.py'
+    environment:
+      - isDocker=true
+    networks:
+      - dsbd_prj_default
+    ports:
+      - "5002:5002"
+networks:
+  dsbd_prj_default:
+    external: true

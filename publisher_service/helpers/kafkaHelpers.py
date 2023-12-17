@@ -1,5 +1,5 @@
 from confluent_kafka import Producer
-from ..config import kafka as kafka_config
+from configs.kafka import server_config
 
 
 def delivery_callback(err, msg):
@@ -11,7 +11,7 @@ def delivery_callback(err, msg):
 
 def sendKafkaMessage(topic, msg):
     # Create Producer instance
-    p = Producer(**kafka_config.server_config)
+    p = Producer(**server_config)
 
     # Produce line (without newline)
     p.produce(topic, msg, callback=delivery_callback)

@@ -1,10 +1,6 @@
 FROM python:3.9
 
-WORKDIR /app
+COPY . /subscriber_service
+WORKDIR /subscriber_service
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
-CMD ["python", "subscriber.py"]
+RUN pip install -r ./requirements.txt

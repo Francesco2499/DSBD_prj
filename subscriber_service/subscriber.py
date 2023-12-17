@@ -2,6 +2,10 @@ from flask import Flask, jsonify, request
 from helpers import kafkaHelpers
 import threading
 import jwt
+import sys
+
+sys.path.append("helpers/")
+sys.path.append("configs/")
 
 app = Flask(__name__)
 
@@ -25,26 +29,18 @@ def verify_token(token):
 @app.route('/subscribe', methods=['GET'])
 def subscribe_to_chosen_topic():
     try:
-        access_token = request.headers.get('Authorization')  # Ottieni il token di accesso dall'header Authorization
 
-        if not access_token or not access_token.startswith('Bearer '):
-            return jsonify({"success": False, "error": "Invalid token"}), 401
+        category = request.args.get('category', 'general')  # Se non specificata, default a 'news'
+        topic_name = f'{category}_topic'
 
-        token = access_token.split(' ')[1]
+        thread = threading.Thread(target=kafkaHelpers.subscribe_to_topic, args=(topic_name,))
+        thread.start()
 
-        is_valid, user_id = verify_token(token)
-        if is_valid:
-            category = request.args.get('category', 'general')  # Se non specificata, default a 'news'
-            topic_name = f'{category}_topic'
+        return jsonify({'success': True, 'message': f'Subscribed to {category} topic successfully'})
 
-            thread = threading.Thread(target=kafkaHelpers.subscribe_to_topic, args=(topic_name,))
-            thread.start()
-
-            return jsonify({'success': True, 'message': f'Subscribed to {category} topic successfully'})
-        else:
-            return jsonify({'success': False, 'error': 'Authentication failed'}), 401
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+
 if __name__ == '__main__':
-    app.run(port=5001)
+    app.run(port=5000)
