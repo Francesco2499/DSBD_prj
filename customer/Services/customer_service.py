@@ -14,18 +14,26 @@ class CustomerService:
 
     def get_customer_by_id(self, customer_id):
         c = self.customer_repository.get_customer_by_id(customer_id)
-        customer = self.serializeCustomer(c)
-        return customer
+        if c:
+            customer = self.serializeCustomer(c)
+            return customer
+        return None
     
     def get_customer_by_email(self, customer_email):
         c = self.customer_repository.get_customer_by_email(customer_email)
-        customer = self.serializeCustomer(c)
-        return customer
+        if c:
+            customer = self.serializeCustomer(c)
+            return customer
+        return None
 
     def create_customer(self, name, password, email):
         hashed_password = generate_password_hash(password, method='sha256')
-        new_customer = Customer(name=name, password=hashed_password, email=email)
-        return self.customer_repository.create_customer(new_customer)
+        try:
+            customer = Customer(name=name, password=hashed_password, email=email)
+            new_customer = self.customer_repository.create_customer(customer)
+            return new_customer
+        except Exception as e:
+            raise e
     
     def delete_customer(self, email, password):
         customer = self.get_customer_by_email(email)
@@ -39,7 +47,6 @@ class CustomerService:
             return {"error": "Failed to delete customer. Invalid email or password."}
         
     def customer_auth(self, customer, password):
-        result = False
         if(check_password_hash(customer.password, password)):
             authentication_service_url = 'http://localhost:5002/authenticate'
             payload = {'user_id': customer.customer_id}

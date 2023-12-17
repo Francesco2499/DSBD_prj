@@ -1,5 +1,3 @@
-import json
-
 class CustomerModel:
     def __init__(self, customer_id, name, password, email):
         self.customer_id = customer_id

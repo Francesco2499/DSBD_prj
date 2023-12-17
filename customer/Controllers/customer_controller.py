@@ -25,10 +25,12 @@ class CustomerController:
 
         if not name or not email or not password:
             return jsonify(error="Name, password and email are required"), 400
-
-        new_customer = self.customer_service.create_customer(name, password, email)
-
-        return jsonify(message="Customer created successfully with id: " + str(new_customer.id)), 201
+        try:
+            new_customer = self.customer_service.create_customer(name, password, email)
+            return jsonify(message="Customer created successfully with id: " + str(new_customer.id)), 201
+        except Exception as e:
+            print(e)
+            return jsonify("Error: " + e.args[0].__str__()), 400
     
     def delete_customer(self, data):
         data = request.json
