@@ -1,1 +1,4 @@
-confluent-kafka==1.7.0
+confluent-kafka
+flask
+kafka-python
+sib_api_v3_sdk

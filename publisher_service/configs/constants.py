@@ -1,5 +1,5 @@
 category = {
-    'general'
+    'general',
     'sports',
     'science',
     'technology'
