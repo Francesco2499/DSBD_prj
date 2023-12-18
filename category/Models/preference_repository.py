@@ -3,14 +3,13 @@ from sqlalchemy import ForeignKey, create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from Models.category_repository import Base
-#Base = declarative_base()
 
 class Preference(Base):
     __tablename__ = 'preferences'
     id = Column(Integer, primary_key=True, autoincrement=True)
     categoryId = Column(Integer, ForeignKey('categories.id'))
     userEmail = Column(String(50))
-    category = relationship("Category")
+    category = relationship("Category", back_populates='preferences')
 
 class PreferenceRepository:
     def __init__(self):

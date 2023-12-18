@@ -9,6 +9,7 @@ class Category(Base):
     __tablename__ = 'categories'
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50))
+    preferences = relationship("Preference", back_populates='category')
 
 class CategoryRepository:
     def __init__(self):
@@ -26,6 +27,14 @@ class CategoryRepository:
     
     def get_category_by_name(self, category_name):
         return self.session.query(Category).filter_by(name=category_name).first()
+    
+    def get_emails_by_category(self, category_name):
+        category = self.get_category_by_name(category_name)
+        if category:
+            emails = [preference.userEmail for preference in category.preferences]
+            return emails
+        return None
+
     
     def create_category(self, category):
         try:

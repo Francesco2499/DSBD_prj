@@ -47,6 +47,13 @@ class CategoryService:
                 raise Exception("Errore: Category not found")
         except Exception as e:
             raise e 
+        
+    def get_emails_by_category(self, category_name):
+        emails = self.category_repository.get_emails_by_category(category_name)
+        if emails:
+            return emails
+        else:
+            return None
     
     def serializeCategory(self, caregory_from_db):
         return CategoryModel(

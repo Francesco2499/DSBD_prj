@@ -24,6 +24,13 @@ class CategoryController:
         else:
             return jsonify(error="Category not found"), 404
         
+    def get_emails_by_category(self, category_name):
+            emailList = self.category_service.get_emails_by_category(category_name)
+            if emailList:
+                return {"emails" : emailList }
+            else:
+                return{"emails" : []}
+        
     def create_category(self, data):
         name = data.get('name')
 
