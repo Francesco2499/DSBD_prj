@@ -1,7 +1,9 @@
 import requests
 from flask import jsonify
+
 NEWS_API_URL = 'https://newsapi.org/v2/top-headlines'  # Cambia con l'URL reale
 NEWS_API_KEY = 'b67fa3203a504b90bd2f6297ff8aab73'  #
+
 
 def get_news(cat):
     try:
