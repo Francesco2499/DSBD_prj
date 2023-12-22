@@ -63,13 +63,14 @@ class CategoryService:
     
     def verify_token(self, token):
         authentication_service_url = 'http://localhost:5002/verify_token'
-        payload = {'token': token}
+        payload = {'token': token.replace('Bearer ', '')}
+        print(payload)
         try:
             response = requests.post(authentication_service_url, json=payload)
             response_data = response.json()
 
             if (response.status_code == 200 and response_data.get('valid')):
-                    return{"message": 'Authentication successful', 'valid': True}
+                return{"message": 'Authentication successful', 'valid': True}
             else:
                 return{"message": 'Authentication failed:', "Error": response_data, 'valid': False}
 

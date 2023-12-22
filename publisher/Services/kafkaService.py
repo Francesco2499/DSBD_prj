@@ -15,6 +15,7 @@ def delivery_callback(err, msg):
 
 def publish_news_kafka(msg, category):
     topic = f'{category}_topic'
+    print(topic)
     articles = msg['articles'][:5]
     message = json.dumps(articles)
 

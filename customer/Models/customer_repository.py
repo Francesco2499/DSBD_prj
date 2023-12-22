@@ -6,12 +6,14 @@ from sqlalchemy.orm import sessionmaker
 
 Base = declarative_base()
 
+
 class Customer(Base):
     __tablename__ = 'customers'
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50))
     password = Column(String(50))
     email = Column(String(50))
+
 
 class CustomerRepository:
     def __init__(self):
@@ -24,13 +26,13 @@ class CustomerRepository:
     def create_new_session(self):
         new_session = Session()
         return new_session
-    
+
     def get_all_customers(self):
         return self.session.query(Customer).all()
 
     def get_customer_by_id(self, customer_id):
         return self.session.query(Customer).filter_by(id=customer_id).first()
-    
+
     def get_customer_by_email(self, customer_email):
         return self.session.query(Customer).filter_by(email=customer_email).first()
 
@@ -45,7 +47,7 @@ class CustomerRepository:
         except Exception as e:
             self.session.rollback()
             self.session.close()
-            raise e  
+            raise e
         return customer
 
     def delete_customer(self, email, password):

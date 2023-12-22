@@ -1,1 +1,4 @@
 Flask==2.0.2
+mysqlclient
+mysql-connector-python
+werkzeug

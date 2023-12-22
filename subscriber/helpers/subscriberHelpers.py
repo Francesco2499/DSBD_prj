@@ -1,9 +1,11 @@
 from sib_api_v3_sdk.rest import ApiException
 from sib_api_v3_sdk import TransactionalEmailsApi, SendSmtpEmail, SendSmtpEmailSender
-from ..Services import categoryService
+from Services import categoryService
 import requests
 import json
 import sys
+
+sys.path.append("Services/")
 
 with open('configs/config.json') as config_file:
     config_data = json.load(config_file)
@@ -17,14 +19,20 @@ api_instance.api_client.configuration.api_key['api-key'] = SENDGRID_API_KEY
 
 
 def handle_response(msg, topic_name):
-    articles = json.loads(msg.value().decode('utf-8'))
+    articles = json.loads(msg)
+    print("pre Requ")
     category = topic_name.replace("_topic", "")
     response = categoryService.get_emails_by_category(category)
-    if 'emails' in response:  # Verifica se il campo "emails" è presente nella risposta
-        email_list = response['emails']  # Ottieni la lista di email
-        for email in email_list:
-            notify_users(email, category, articles)
-        return "Tutti gli utenti sono stati notificati!"
+    print(response)
+    if response is not None:  # Verifica se il campo "emails" è presente nella risposta
+        email_list = response['emails']
+        if email_list is not None:  # Ottieni la lista di email
+            for email in email_list:
+                print(email)
+                for artc in articles:
+                    print(artc['title'])
+                # notify_users(email, category, articles)
+            return "Tutti gli utenti sono stati notificati!"
 
 
 def notify_users(receiver, category, articles):

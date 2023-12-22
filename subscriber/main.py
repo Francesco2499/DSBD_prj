@@ -3,7 +3,7 @@ from Controllers import subscriber_controller
 
 import sys
 
-sys.path.append("configs/")
+sys.path.append("Controllers/")
 
 app = Flask(__name__)
 
@@ -11,8 +11,8 @@ app = Flask(__name__)
 @app.route('/subscribe', methods=['GET'])
 def subscribe():
     category = request.args.get('category', 'general')  # Se non specificata, default a 'news'
-    subscriber_controller.subscribe_category(category)
-
+    print(category)
+    return subscriber_controller.subscribe_category(category)
 
 if __name__ == '__main__':
-    app.run(port=5000)
+    app.run(debug=True, port=5000)

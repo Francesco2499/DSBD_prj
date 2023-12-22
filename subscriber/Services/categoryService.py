@@ -4,10 +4,10 @@ import requests
 
 def get_emails_by_category(category):
     try:
-        response = requests.get('http://localhost:8082/categories/preferences?category_name' + category)
+        response = requests.get('http://localhost:8082/categories/preferences?category-name=' + category)
         if response.status_code == 200:
             data = response.json()  # Converte la risposta JSON in un dizionario Python
-            if 'emails' in data:  # Verifica se il campo "emails" è presente nella risposta
+            if data is not None:  # Verifica se il campo "emails" è presente nella risposta
                 return data['emails']
             else:
                 return jsonify({"error": "Il campo 'emails' non è presente nella response JSON"})

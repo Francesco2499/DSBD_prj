@@ -49,6 +49,7 @@ def add_preference():
 @app.route('/categories/preferences', methods=['GET'])
 def get_emails_by_category():
     category_name = request.args.get('category-name')
+    print(category_name)
     if category_name:
         return category_controller.get_emails_by_category(category_name)
     else:

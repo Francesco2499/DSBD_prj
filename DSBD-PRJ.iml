@@ -9,8 +9,8 @@
   <component name="PyNamespacePackagesService">
     <option name="namespacePackageFolders">
       <list>
-        <option value="$MODULE_DIR$/publisher_service" />
-        <option value="$MODULE_DIR$/subscriber_service" />
+        <option value="$MODULE_DIR$/publisher" />
+        <option value="$MODULE_DIR$/subscriber" />
       </list>
     </option>
   </component>

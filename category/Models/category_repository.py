@@ -30,6 +30,7 @@ class CategoryRepository:
     
     def get_emails_by_category(self, category_name):
         category = self.get_category_by_name(category_name)
+        print(category)
         if category:
             emails = [preference.userEmail for preference in category.preferences]
             return emails

@@ -1,8 +1,13 @@
 from flask import Flask, request
 from Controllers.customer_controller import CustomerController
+import sys
 
 app = Flask(__name__)
 customer_controller = CustomerController()
+
+
+sys.path.append('Services/')
+sys.path.append('Models/')
 
 
 @app.route('/customers', methods=['GET'])
@@ -29,9 +34,10 @@ def delete_customer():
 
 @app.route('/customers/auth', methods=['POST'])
 def authenticate():
+    print("Init auth")
     data = request.json
     return customer_controller.auth(data)
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5003)

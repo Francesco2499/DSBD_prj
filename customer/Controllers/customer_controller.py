@@ -1,6 +1,7 @@
-from flask import  request, jsonify
+from flask import request, jsonify
 from Services.customer_service import CustomerService
 from werkzeug.security import check_password_hash, generate_password_hash
+
 
 class CustomerController:
     def __init__(self):
@@ -9,7 +10,7 @@ class CustomerController:
     def get_all_customers(self):
         customers = self.customer_service.get_all_customers()
         customerList = [customer.__str__() for customer in customers]
-        return {"customers" : customerList }
+        return {"customers": customerList}
 
     def get_customer_by_id(self, customer_id):
         customer = self.customer_service.get_customer_by_id(customer_id)
@@ -31,7 +32,7 @@ class CustomerController:
         except Exception as e:
             print(e)
             return jsonify("Error: " + e.args[0].__str__()), 400
-    
+
     def delete_customer(self, data):
         data = request.json
 
@@ -47,7 +48,7 @@ class CustomerController:
 
         # Restituire una risposta JSON
         return jsonify(result)
-    
+
     def auth(self, data):
         data = request.json
         # Verifica che ci siano sia l'email che la password nei dati della richiesta
@@ -64,8 +65,6 @@ class CustomerController:
         else:
             # Email o password errati
             return jsonify({"error": "Invalid email or password"}), 401
-        
-    
+
 
 customer_controller = CustomerController()
-
