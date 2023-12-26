@@ -3,6 +3,7 @@ from Models.customer_model import CustomerModel
 from Models.customer_repository import Customer, CustomerRepository
 from werkzeug.security import generate_password_hash, check_password_hash
 from config import get_configs
+import os
 
 config = get_configs()
 
@@ -51,11 +52,12 @@ class CustomerService:
 
     def customer_auth(self, customer, password):
         if check_password_hash(customer.password, password):
-            authentication_service_url = config.properties.get('AUTH_URL')
+            authentication_service_url = os.getenv('AUTH_URL') or config.properties.get('AUTH_URL')
             payload = {'user_id': customer.customer_id}
 
             try:
                 response = requests.post(authentication_service_url, json=payload)
+                print(response)
                 response_data = response.json()
 
                 if (response.status_code == 200):
@@ -63,8 +65,8 @@ class CustomerService:
                 else:
                     return {"message": 'Authentication failed:', "Error": response_data}
 
-            except requests.exceptions.RequestException as e:
-                return ('Error during authentication:', e)
+            except Exception as e:
+                return {"message": 'Error during authentication:', "Error": e.args[0].__str__()}
         else:
             # password errata
             return {"error": "Invalid name or password"}

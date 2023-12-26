@@ -1,9 +1,10 @@
 from MySQLdb import IntegrityError
-from mysqlx import Session
+#from mysqlx import Session
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from config import get_configs
+import os
 
 Base = declarative_base()
 config = get_configs()
@@ -12,26 +13,22 @@ class Customer(Base):
     __tablename__ = 'customers'
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50))
-    password = Column(String(50))
-    email = Column(String(50))
+    password = Column(String(256))
+    email = Column(String(50), unique=True)
 
 
 class CustomerRepository:
     def __init__(self):
         # Configura la connessione al database MySQL
-        DB_HOST = config.properties.get('DB_HOST')
-        DB_USER = config.properties.get('DB_USER')
-        DB_PWD = config.properties.get('DB_PWD')
-        DB_SCHEMA = config.properties.get('DB_SCHEMA')
+        DB_HOST = os.getenv('MYSQL_HOST') or config.properties.get('DB_HOST')
+        DB_USER = os.getenv('MYSQL_USER') or config.properties.get('DB_USER',)
+        DB_PWD = os.getenv('MYSQL_PASSWORD') or config.properties.get('DB_PWD')
+        DB_SCHEMA = os.getenv('MYSQL_DATABASE') or config.properties.get('DB_SCHEMA')
 
-        engine = create_engine('mysql://' + DB_USER + ':' + DB_PWD + '@' + DB_HOST + '/' + DB_SCHEMA, echo=True)
+        engine = create_engine(f'mysql://{DB_USER}:{DB_PWD}@{DB_HOST}/{DB_SCHEMA}', echo=True)
         Base.metadata.create_all(engine)
         Session = sessionmaker(bind=engine)
         self.session = Session()
-
-    def create_new_session(self):
-        new_session = Session()
-        return new_session
 
     def get_all_customers(self):
         return self.session.query(Customer).all()

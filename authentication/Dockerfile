@@ -1,13 +1,9 @@
-FROM python:3.9
+FROM python:3.10
 
-WORKDIR /app
+COPY . /authentication
 
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
+WORKDIR /authentication
 
 EXPOSE 5002
 
-COPY . .
-
-CMD ["python", "main.py"]
+RUN pip install -r ./requirements.txt
