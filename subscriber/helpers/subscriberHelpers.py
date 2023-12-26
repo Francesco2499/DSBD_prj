@@ -1,7 +1,8 @@
 from sib_api_v3_sdk.rest import ApiException
 from sib_api_v3_sdk import TransactionalEmailsApi, SendSmtpEmail, SendSmtpEmailSender
 from Services import categoryService
-import requests
+from flask import jsonify
+
 import json
 import sys
 
@@ -20,75 +21,30 @@ api_instance.api_client.configuration.api_key['api-key'] = SENDGRID_API_KEY
 
 def handle_response(msg, topic_name):
     articles = json.loads(msg)
-    print("pre Requ")
+    print("Update in ", topic_name)
     category = topic_name.replace("_topic", "")
     response = categoryService.get_emails_by_category(category)
-    print(response)
-    if response is not None:  # Verifica se il campo "emails" è presente nella risposta
+    if response is not None and 'emails' in response:  # Verifica se il campo "emails" è presente nella risposta
         email_list = response['emails']
         if email_list is not None:  # Ottieni la lista di email
             for email in email_list:
-                print(email)
-                for artc in articles:
-                    print(artc['title'])
-                # notify_users(email, category, articles)
-            return "Tutti gli utenti sono stati notificati!"
+                print("Sending mail to:", email)
+                for article in articles:
+                    print(article['title'])
+                receiver = email or SENDER
+                send_email(receiver, category, articles)
+
+            return jsonify({"Message:", "All users notified!"})
+        else:
+            return jsonify({"Message:", "There are not users with category preference:", category})
 
 
-def notify_users(receiver, category, articles):
-    title = articles['title']
-    link = articles['url']
-    receiver = receiver or "24maggio1999@gmail.com"
-    send_email(receiver, category, title, link)
+def send_email(receiver, category, articles):
+    num_articles = len(articles)
+    style = get_style_for_email()
 
+    html_articles = get_info_by_articles(articles)
 
-def send_email(receiver, category, title, link):
-    style = '''
-        <style>
-            body {
-                font-family: 'Arial', sans-serif;
-                margin: 0;
-                padding: 0;
-                background-color: #f4f4f4;
-            }
-            .container {
-                width: 80%;
-                margin: 20px auto;
-                background-color: #ffffff;
-                border-radius: 8px;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                padding: 20px;
-            }
-            h1 {
-                font-size: 28px;
-                color: #333333;
-                margin-bottom: 15px;
-            }
-            p {
-                font-size: 16px;
-                color: #666666;
-                margin-bottom: 10px;
-            }
-            a {
-                color: #007bff;
-                text-decoration: none;
-            }
-            .button {
-                display: inline-block;
-                padding: 10px 20px;
-                margin-top: 15px;
-                background-color: #007bff;
-                color: #ffffff;
-                border-radius: 5px;
-                text-decoration: none;
-            }
-            .button:hover {
-                background-color: #0056b3;
-            }
-        </style>
-    '''
-
-    # Costruzione del corpo dell'email con HTML
     htmlEmail = f'''
         <html>
         <head>
@@ -98,10 +54,9 @@ def send_email(receiver, category, title, link):
         </head>
         <body>
             <div class="container">
-                <h1>Nuovo articolo nella categoria "{category}"</h1>
-                <p>È stato aggiunto un nuovo articolo:</p>
-                <p><strong>Titolo:</strong> {title}</p>
-                <a href="{link}" class="button">Leggi l'articolo</a>
+                <h1>Trovati nuovi articoli per la categoria {category}</h1>
+                <p>Sono stati aggiunti {num_articles} nuovi articoli:</p>
+                {html_articles}
             </div>
         </body>
         </html>
@@ -109,7 +64,7 @@ def send_email(receiver, category, title, link):
 
     send_smtp_email = SendSmtpEmail(
         sender=SendSmtpEmailSender(email=SENDER),
-        to=[{"email": SENDER}],
+        to=[{"email": receiver}],
         subject=f'Nuovo articolo nella categoria "{category}"',
         html_content=htmlEmail
     )
@@ -125,3 +80,51 @@ def send_email(receiver, category, title, link):
         print("Timeout durante l'invio dell'email:", timeout_error)
     except Exception as ex:
         print("Errore generico durante l'invio dell'email:", ex)
+
+
+def get_style_for_email():
+    return '''
+         <style>
+            body {{
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                margin: 0;
+                padding: 0;
+            }}
+            .container {{
+                width: 80%;
+                margin: 20px auto;
+                padding: 20px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                background-color: #f9f9f9;
+            }}
+            h1 {{
+                color: #333;
+            }}
+            p {{
+                color: #666;
+            }}
+            a {{
+                color: #0066cc;
+                text-decoration: none;
+            }}
+            a:hover {{
+                text-decoration: underline;
+            }}
+        </style>
+    '''
+
+
+def get_info_by_articles(articles):
+    articles_html = ""
+
+    for item in articles:
+        title = item["title"]
+        link = item["link"]
+        article_block = f'''
+            <p><strong>Titolo:</strong> <a href="{link}">{title}</a></p>
+        '''
+        articles_html += article_block
+
+    return articles_html

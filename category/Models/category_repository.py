@@ -5,11 +5,13 @@ from sqlalchemy.orm import sessionmaker, relationship
 
 Base = declarative_base()
 
+
 class Category(Base):
     __tablename__ = 'categories'
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50))
     preferences = relationship("Preference", back_populates='category')
+
 
 class CategoryRepository:
     def __init__(self):
@@ -24,10 +26,10 @@ class CategoryRepository:
 
     def get_category_by_id(self, category_id):
         return self.session.query(Category).filter_by(id=category_id).first()
-    
+
     def get_category_by_name(self, category_name):
         return self.session.query(Category).filter_by(name=category_name).first()
-    
+
     def get_emails_by_category(self, category_name):
         category = self.get_category_by_name(category_name)
         print(category)
@@ -36,7 +38,6 @@ class CategoryRepository:
             return emails
         return None
 
-    
     def create_category(self, category):
         try:
             self.session.add(category)
@@ -48,5 +49,5 @@ class CategoryRepository:
         except Exception as e:
             self.session.rollback()
             self.session.close()
-            raise e  
+            raise e
         return category

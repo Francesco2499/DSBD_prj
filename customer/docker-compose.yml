@@ -1,17 +1,22 @@
-version: '3.8'
+version: '3'
+
 services:
-  subscriber:
+  customer:
     build:
       context: .
       dockerfile: Dockerfile
     command: 'python main.py'
     environment:
       - isDocker=true
+      - MYSQL_DATABASE='dsbd_customer'
+      - MYSQL_USER='root'
+      - MYSQL_ROOT_PASSWORD='root'
     networks:
       - dsbd_prj_default
     ports:
-      - "5000:5000"
+      - "5003:5003"
 networks:
   dsbd_prj_default:
     external: true
+
 

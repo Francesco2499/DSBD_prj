@@ -6,9 +6,11 @@ import sys
 
 sys.path.append("helpers/")
 
+
 def subscribe_to_topic(topic_name):
     try:
-        print(topic_name)
+        print("Updated topic:" + topic_name)
+
         consumer_config['group.id'] = f'{topic_name}_group'
         consumer = Consumer(consumer_config)
         consumer.subscribe([topic_name])
@@ -20,20 +22,23 @@ def subscribe_to_topic(topic_name):
             if msg.error():
                 print("Consumer error: {}".format(msg.error()))
                 continue
-            try:
-                print("Waiting for notify!")
-                articles = msg.value().decode('utf-8')
-                subscriberHelpers.handle_response(articles, topic_name)
-                print('Received message: {}'.format(articles))
 
-            except json.JSONDecodeError as e:
-                print(f'Errore durante il parsing del JSON: {str(e)}')
+            print("Waiting for message!")
+            articles = msg.value().decode('utf-8')
+            subscriberHelpers.handle_response(articles, topic_name)
+            print('Received message: {}'.format(articles))
 
         consumer.close()
+
+    except KeyboardInterrupt:
+        print("Process interrupted by user")
+
+    except json.JSONDecodeError as e:
+        print(f'Error in JSON parsing: {str(e)}')
+        # Gestione specifica per errori di parsing JSON
+
     except Exception as e:
-        print(e)
+        print(f'Unexpected error: {str(e)}')
+        # Gestione generica per altri tipi di eccezioni
 
     return
-
-
-

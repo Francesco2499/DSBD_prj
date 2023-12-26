@@ -1,20 +1,26 @@
 import requests
 from flask import jsonify
 
-NEWS_API_URL = 'https://newsapi.org/v2/top-headlines'  # Cambia con l'URL reale
-NEWS_API_KEY = 'b67fa3203a504b90bd2f6297ff8aab73'  #
+NEWS_API_URL = 'https://newsapi.org/v2/top-headlines'
+NEWS_API_KEY = 'b67fa3203a504b90bd2f6297ff8aab73'
 
 
-def get_news(cat):
+def get_news(category):
     try:
         params = {
-            'country': 'it',  # Cambia con il paese di interesse
+            'country': 'it',
             'apiKey': NEWS_API_KEY,
-            'category': cat
+            'category': category
         }
 
         response = requests.get(NEWS_API_URL, params=params)
 
-        return response
+        if response.status_code == 200:
+            return response
+        else:
+            return jsonify({'success': False, 'error': f"Error in request: {response.status_code}"})
+    except requests.RequestException as e:
+        return jsonify({'success': False, 'error': f"Connection error: {str(e)}"})
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({'success': False, 'error': f"Generic error: {str(e)}"}), 500
+

@@ -20,10 +20,10 @@ def get_news_by_category():
                     news_data = response.json()
                     result = kafkaService.publish_news_kafka(news_data, cat)
 
-                    if result:
-                        print('Published news for category:' + cat)
-                else:
-                    return jsonify({'success': False, 'error': 'Failed to fetch news data'}), 500
+                    if result.Success:
+                        print(result.Message)
+                    else:
+                        return result.Message
             except Exception as e:
                 return jsonify({'success': False, 'error': str(e)}), 500
-        return jsonify({'success': True, 'message': "Published all news!"}), 200
+

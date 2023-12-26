@@ -1,6 +1,7 @@
-version: '3.8'
+version: '3'
+
 services:
-  subscriber:
+  authtentication:
     build:
       context: .
       dockerfile: Dockerfile
@@ -10,7 +11,7 @@ services:
     networks:
       - dsbd_prj_default
     ports:
-      - "5000:5000"
+      - "5002:5002"
 networks:
   dsbd_prj_default:
     external: true

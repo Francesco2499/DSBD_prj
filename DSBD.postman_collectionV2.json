@@ -1,0 +1,553 @@
+{
+	"info": {
+		"_postman_id": "39c4152b-31c1-42cf-b06d-fdcdd02e9dd5",
+		"name": "DSBD",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31849370"
+	},
+	"item": [
+		{
+			"name": "Auth Service",
+			"item": [
+				{
+					"name": "Verify Token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMSJ9.wk5NGKeVQ4ljG0RcmPMQmwO3tHiJ_5J3z8-nGZdW8Ps\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5002/verify_token",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5002",
+							"path": [
+								"verify_token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Authenticate",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_id\": \"1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5002/authenticate",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5002",
+							"path": [
+								"authenticate"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Publisher",
+			"item": [
+				{
+					"name": "Publish news",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:5001/publish_news",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5001",
+							"path": [
+								"publish_news"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Subscriber",
+			"item": [
+				{
+					"name": "Subscribe",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxfQ.ftVWQD9oDs-8zTWaaTAq9SYq21WJeq6Y_pz5NY6MIIo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:5000/subscribe?category={{category}}",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"subscribe"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "{{category}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Customer Service",
+			"item": [
+				{
+					"name": "Auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var tokenData = JSON.parse(responseBody);\r",
+									"\r",
+									"if(tokenData.access_token!==null && tokenData.token_type!==null ){\r",
+									"    pm.collectionVariables.set(\"Bearer\",tokenData.token);\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"prova4@gmail.com\",\r\n    \"password\": \"12345\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5004/customers/auth",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5004",
+							"path": [
+								"customers",
+								"auth"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete customer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"prova3@gmail.com\",\r\n    \"password\": \"12345\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/customers/delete",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"customers",
+								"delete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create customer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"prova3\",\r\n    \"password\": \"12345\",\r\n    \"email\": \"prova3@gmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/customers",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"customers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET customer by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:5000/customers/1",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"customers",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET ALL customers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:5000/customers",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"customers"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Category Service",
+			"item": [
+				{
+					"name": "GET All Categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8082/categories",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8082",
+							"path": [
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Category by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8082/categories/1",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8082",
+							"path": [
+								"categories",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Preferences by CategoryName",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8082/categories/SPORT",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8082",
+							"path": [
+								"categories",
+								"SPORT"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Category by NAME Copy",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8082/categories/SPORT",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8082",
+							"path": [
+								"categories",
+								"SPORT"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ADD Category",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"sports\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8082/categories",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8082",
+							"path": [
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ADD Category Preference",
+					"request": {
+						"auth": {
+							"type": "jwt",
+							"jwt": [
+								{
+									"key": "payload",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "secret",
+									"value": "your_secret_key",
+									"type": "string"
+								},
+								{
+									"key": "isSecretBase64Encoded",
+									"value": false,
+									"type": "boolean"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								},
+								{
+									"key": "algorithm",
+									"value": "HS256",
+									"type": "string"
+								},
+								{
+									"key": "headerPrefix",
+									"value": "Bearer",
+									"type": "string"
+								},
+								{
+									"key": "queryParamKey",
+									"value": "token",
+									"type": "string"
+								},
+								{
+									"key": "header",
+									"value": "{}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"categoryName\": \"SPORT\",\r\n    \"userEmail\": \"prova4@gmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8082/categories/add-preference",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8082",
+							"path": [
+								"categories",
+								"add-preference"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "Bearer",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
