@@ -2,7 +2,9 @@ import requests
 from Models.customer_model import CustomerModel
 from Models.customer_repository import Customer, CustomerRepository
 from werkzeug.security import generate_password_hash, check_password_hash
+from config import get_configs
 
+config = get_configs()
 
 class CustomerService:
     def __init__(self):
@@ -49,7 +51,7 @@ class CustomerService:
 
     def customer_auth(self, customer, password):
         if check_password_hash(customer.password, password):
-            authentication_service_url = 'http://localhost:5002/authenticate'
+            authentication_service_url = config.properties.get('AUTH_URL')
             payload = {'user_id': customer.customer_id}
 
             try:

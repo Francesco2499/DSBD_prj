@@ -1,5 +1,6 @@
 from flask import Flask, request
 from Controllers.customer_controller import CustomerController
+from config import get_configs
 import sys
 
 app = Flask(__name__)
@@ -40,4 +41,4 @@ def authenticate():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5003)
+    app.run(debug=True, port=int(get_configs().properties.get('port')))

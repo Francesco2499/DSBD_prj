@@ -1,11 +1,12 @@
 from MySQLdb import IntegrityError
 from mysqlx import Session
-from sqlalchemy import create_engine, Column, Integer, String, Sequence
+from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from config import get_configs
 
 Base = declarative_base()
-
+config = get_configs()
 
 class Customer(Base):
     __tablename__ = 'customers'
@@ -18,7 +19,12 @@ class Customer(Base):
 class CustomerRepository:
     def __init__(self):
         # Configura la connessione al database MySQL
-        engine = create_engine('mysql://root:root@localhost/dsbd_customer', echo=True)
+        DB_HOST = config.properties.get('DB_HOST')
+        DB_USER = config.properties.get('DB_USER')
+        DB_PWD = config.properties.get('DB_PWD')
+        DB_SCHEMA = config.properties.get('DB_SCHEMA')
+
+        engine = create_engine('mysql://' + DB_USER + ':' + DB_PWD + '@' + DB_HOST + '/' + DB_SCHEMA, echo=True)
         Base.metadata.create_all(engine)
         Session = sessionmaker(bind=engine)
         self.session = Session()
