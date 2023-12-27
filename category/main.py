@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from Controllers.category_controller import CategoryController
+from config import get_configs
 
 app = Flask(__name__)
 category_controller = CategoryController()
@@ -57,4 +58,4 @@ def get_emails_by_category():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8082)
+    app.run(host='0.0.0.0', debug=True, port=int(get_configs().properties.get('port')))

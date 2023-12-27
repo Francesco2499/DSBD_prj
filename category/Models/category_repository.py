@@ -2,21 +2,28 @@ from MySQLdb import IntegrityError
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
-
+from config import get_configs
+import os
 Base = declarative_base()
+config = get_configs()
 
 
 class Category(Base):
     __tablename__ = 'categories'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(50))
+    name = Column(String(50), unique=True)
     preferences = relationship("Preference", back_populates='category')
 
 
 class CategoryRepository:
     def __init__(self):
-        # Configura la connessione al database MySQL
-        engine = create_engine('mysql://root:root@localhost/dsbd_category', echo=True)
+         # Configura la connessione al database MySQL
+        DB_HOST = os.getenv('MYSQL_HOST') or config.properties.get('DB_HOST')
+        DB_USER = os.getenv('MYSQL_USER') or config.properties.get('DB_USER',)
+        DB_PWD = os.getenv('MYSQL_PASSWORD') or config.properties.get('DB_PWD')
+        DB_SCHEMA = os.getenv('MYSQL_DATABASE') or config.properties.get('DB_SCHEMA')
+
+        engine = create_engine(f'mysql://{DB_USER}:{DB_PWD}@{DB_HOST}/{DB_SCHEMA}', echo=True)
         Base.metadata.create_all(engine)
         Session = sessionmaker(bind=engine)
         self.session = Session()

@@ -2,6 +2,11 @@ import requests
 from Models.category_model import CategoryModel
 from Models.category_repository import Category, CategoryRepository
 from Models.preference_repository import Preference, PreferenceRepository
+from config import get_configs
+import os
+
+config = get_configs()
+
 
 class CategoryService:
     def __init__(self):
@@ -62,7 +67,7 @@ class CategoryService:
         )
     
     def verify_token(self, token):
-        authentication_service_url = 'http://localhost:5002/verify_token'
+        authentication_service_url = os.getenv('AUTH_URL') or config.properties.get('AUTH_URL')
         payload = {'token': token.replace('Bearer ', '')}
         print(payload)
         try:

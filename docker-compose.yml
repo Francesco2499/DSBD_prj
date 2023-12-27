@@ -4,13 +4,21 @@ version: '3'
 
 services:
 
-  db:
+  db_customer:
     image: mysql:latest
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: dsbd_customer
     ports:
       - "3306:3306"
+
+  db_category:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: dsbd_category
+    ports:
+      - "3603:3603"
   
   customer:
     build:
@@ -19,14 +27,31 @@ services:
     command: 'python main.py'
     environment:
       isDocker: true
-      MYSQL_HOST: db
+      MYSQL_HOST: db_customer
       MYSQL_DATABASE: 'dsbd_customer'
       MYSQL_ROOT_PASSWORD: 'root'
       AUTH_URL: http://authentication:5002/authenticate
     networks:
       - default
     ports:
-      - "5000:5000"    
+      - "5000:5000"
+
+  category:
+    build:
+      context: ./category
+      dockerfile: Dockerfile
+    command: 'python main.py'
+    environment:
+      isDocker: true
+      MYSQL_HOST: db_category
+      MYSQL_DATABASE: 'dsbd_category'
+      MYSQL_ROOT_PASSWORD: 'root'
+      MYSQL_PORT: 3603
+      AUTH_URL: http://authentication:5002/verify_token
+    networks:
+      - default
+    ports:
+      - "8082:8082"
 
   authentication:
     build:
