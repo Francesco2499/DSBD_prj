@@ -1,0 +1,194 @@
+# db-customer-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-customer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-customer
+  template:
+    metadata:
+      labels:
+        app: db-customer
+    spec:
+      containers:
+      - name: db-customer
+        image: mysql:8.0
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: root
+        - name: MYSQL_DATABASE
+          value: dsbd_customer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-customer-service
+spec:
+  selector:
+    app: db-customer
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+---
+# db-category-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-category
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-category
+  template:
+    metadata:
+      labels:
+        app: db-category
+    spec:
+      containers:
+      - name: db-category
+        image: mysql:8.0
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: root
+        - name: MYSQL_DATABASE
+          value: dsbd_category
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-category-service
+spec:
+  selector:
+    app: db-category
+  ports:
+    - protocol: TCP
+      port: 3603
+      targetPort: 3603
+---
+# customer-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: customer
+  template:
+    metadata:
+      labels:
+        app: customer
+    spec:
+      containers:
+      - name: customer
+        image: dsbdproject/dsbd_prj-customer:latest
+        command: ['python', 'main.py']
+        env:
+        - name: isDocker
+          value: "true"
+        - name: MYSQL_HOST
+          value: db-customer-service
+        - name: MYSQL_DATABASE
+          value: dsbd_customer
+        - name: MYSQL_ROOT_PASSWORD
+          value: root
+        - name: AUTH_URL
+          value: http://authentication-service:5002/authenticate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: customer-service
+spec:
+  selector:
+    app: customer
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+---
+# category-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: category
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: category
+  template:
+    metadata:
+      labels:
+        app: category
+    spec:
+      containers:
+      - name: category
+        image: dsbdproject/dsbd_prj-category:latest
+        command: ['python', 'main.py']
+        env:
+        - name: isDocker
+          value: "true"
+        - name: MYSQL_HOST
+          value: db-category-service
+        - name: MYSQL_DATABASE
+          value: dsbd_category
+        - name: MYSQL_ROOT_PASSWORD
+          value: root
+        - name: MYSQL_PORT
+          value: "3603"
+        - name: AUTH_URL
+          value: http://authentication-service:5002/verify_token
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: category-service
+spec:
+  selector:
+    app: category
+  ports:
+    - protocol: TCP
+      port: 8082
+      targetPort: 8082
+---
+# authentication-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authentication
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authentication
+  template:
+    metadata:
+      labels:
+        app: authentication
+    spec:
+      containers:
+      - name: authentication
+        image: dsbdproject/dsbd_prj-authentication:latest
+        command: ['python', 'main.py']
+        env:
+        - name: isDocker
+          value: "true"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: authentication-service
+spec:
+  selector:
+    app: authentication
+  ports:
+    - protocol: TCP
+      port: 5002
+      targetPort: 5002
