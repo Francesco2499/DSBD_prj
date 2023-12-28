@@ -1,22 +1,33 @@
 version: '3'
 
 services:
+
+  db_customer:
+  image: mysql:latest
+  environment:
+    MYSQL_ROOT_PASSWORD: root
+    MYSQL_DATABASE: dsbd_customer
+  ports:
+    - "3306:3306"
+  
   customer:
     build:
       context: .
       dockerfile: Dockerfile
     command: 'python main.py'
     environment:
-      - isDocker=true
-      - MYSQL_DATABASE='dsbd_customer'
-      - MYSQL_USER='root'
-      - MYSQL_ROOT_PASSWORD='root'
+      isDocker: true
+      MYSQL_HOST: db_customer
+      MYSQL_DATABASE: 'dsbd_customer'
+      MYSQL_ROOT_PASSWORD: 'root'
+      AUTH_URL: http://authentication:5002/authenticate
     networks:
-      - dsbd_prj_default
+      - default
     ports:
-      - "5003:5003"
+      - "5000:5000"
 networks:
-  dsbd_prj_default:
+  default:
+    name: dsbd_prj_default
     external: true
 
 
