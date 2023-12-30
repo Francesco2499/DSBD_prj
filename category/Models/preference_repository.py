@@ -1,5 +1,5 @@
 from MySQLdb import IntegrityError
-from sqlalchemy import ForeignKey, create_engine, Column, Integer, String
+from sqlalchemy import ForeignKey, UniqueConstraint, create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from Models.category_repository import Base
@@ -14,6 +14,10 @@ class Preference(Base):
     categoryId = Column(Integer, ForeignKey('categories.id'))
     userEmail = Column(String(50))
     category = relationship("Category", back_populates='preferences')
+
+    __table_args__ = (
+        UniqueConstraint('categoryId', 'userEmail', name='uq_category_user_email'),
+    )
 
 class PreferenceRepository:
     def __init__(self):

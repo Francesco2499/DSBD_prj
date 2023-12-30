@@ -25,6 +25,8 @@ services:
       context: ./customer
       dockerfile: Dockerfile
     command: 'python main.py'
+    depends_on:
+      - db_customer
     environment:
       isDocker: true
       MYSQL_HOST: db_customer
@@ -41,6 +43,8 @@ services:
       context: ./category
       dockerfile: Dockerfile
     command: 'python main.py'
+    depends_on:
+      - db_category
     environment:
       isDocker: true
       MYSQL_HOST: db_category
@@ -64,6 +68,23 @@ services:
       - default
     ports:
       - "5002:5002"
+
+  apigateway:
+    build:
+      context: ./apigateway
+      dockerfile: Dockerfile
+    command: 'python main.py'
+    depends_on:
+      - customer
+      - category
+    environment:
+      isDocker: true
+      CUSTOMER_URL: http://customer:5000/customers
+      CATEGORY_URL: http://category:8082/categories
+    networks:
+      - default
+    ports:
+      - "8090:8090"
 
 networks:
   default:
