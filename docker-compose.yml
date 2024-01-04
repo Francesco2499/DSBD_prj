@@ -18,7 +18,7 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: dsbd_category
     ports:
-      - "3603:3603"
+      - 3307:3306
   
   customer:
     build:
@@ -50,7 +50,6 @@ services:
       MYSQL_HOST: db_category
       MYSQL_DATABASE: 'dsbd_category'
       MYSQL_ROOT_PASSWORD: 'root'
-      MYSQL_PORT: 3603
       AUTH_URL: http://authentication:5002/verify_token
     networks:
       - default

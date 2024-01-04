@@ -22,8 +22,9 @@ class CategoryRepository:
         DB_USER = os.getenv('MYSQL_USER') or config.properties.get('DB_USER',)
         DB_PWD = os.getenv('MYSQL_PASSWORD') or config.properties.get('DB_PWD')
         DB_SCHEMA = os.getenv('MYSQL_DATABASE') or config.properties.get('DB_SCHEMA')
+        DB_PORT = os.getenv('MYSQL_PORT') or config.properties.get('DB_PORT')
 
-        engine = create_engine(f'mysql://{DB_USER}:{DB_PWD}@{DB_HOST}/{DB_SCHEMA}', echo=True)
+        engine = create_engine(f'mysql://{DB_USER}:{DB_PWD}@{DB_HOST}:{DB_PORT}/{DB_SCHEMA}', echo=True)
         Base.metadata.create_all(engine)
         Session = sessionmaker(bind=engine)
         self.session = Session()

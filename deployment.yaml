@@ -15,12 +15,20 @@ spec:
     spec:
       containers:
       - name: db-customer
-        image: mysql:8.0
+        image: mysql:latest
         env:
         - name: MYSQL_ROOT_PASSWORD
           value: root
         - name: MYSQL_DATABASE
           value: dsbd_customer
+        volumeMounts:
+        - name: customer-persistent-storage
+          mountPath: /var/lib/mysql
+
+      volumes:
+      - name: customer-persistent-storage
+        persistentVolumeClaim:
+          claimName: db-customer-pvc
 ---
 apiVersion: v1
 kind: Service
@@ -51,12 +59,22 @@ spec:
     spec:
       containers:
       - name: db-category
-        image: mysql:8.0
+        image: mysql:latest
+        ports:
+        - containerPort: 3306
         env:
         - name: MYSQL_ROOT_PASSWORD
           value: root
         - name: MYSQL_DATABASE
           value: dsbd_category
+        volumeMounts:
+        - name: category-persistent-storage
+          mountPath: /var/lib/mysql
+
+      volumes:
+      - name: category-persistent-storage
+        persistentVolumeClaim:
+          claimName: db-category-pvc
 ---
 apiVersion: v1
 kind: Service
@@ -67,8 +85,8 @@ spec:
     app: db-category
   ports:
     - protocol: TCP
-      port: 3603
-      targetPort: 3603
+      port: 3307
+      targetPort: 3306
 ---
 # customer-deployment.yaml
 apiVersion: apps/v1
@@ -142,7 +160,7 @@ spec:
         - name: MYSQL_ROOT_PASSWORD
           value: root
         - name: MYSQL_PORT
-          value: "3603"
+          value: "3307"
         - name: AUTH_URL
           value: http://authentication-service:5002/verify_token
 ---
@@ -192,3 +210,100 @@ spec:
     - protocol: TCP
       port: 5002
       targetPort: 5002
+---
+# apigateway-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apigateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apigateway
+  template:
+    metadata:
+      labels:
+        app: apigateway
+    spec:
+      containers:
+      - name: apigateway
+        image: dsbdproject/dsbd_prj-apigateway:latest
+        command: ['python', 'main.py']
+        env:
+        - name: isDocker
+          value: "true"
+        - name: CUSTOMER_URL
+          value: "http://customer-service:5000/customers"
+        - name: CATEGORY_URL
+          value: "http://category-service:8082/categories"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apigateway-service
+spec:
+  selector:
+    app: apigateway
+  ports:
+    - protocol: TCP
+      port: 8090
+      targetPort: 8090
+      apiVersion: v1
+  type: LoadBalancer
+---
+#PV e PVC for customer service
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: db-customer-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  hostPath:
+    path: "/path/to/db-customer-data"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-customer-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 1Gi
+---
+#PV e PVC for category service
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: db-category-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  hostPath:
+    path: "/path/to/db-category-data"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-category-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 1Gi
