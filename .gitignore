@@ -34,3 +34,4 @@ venv/
 env.bak/
 env1/
 venv1/
+subscriber/.env
