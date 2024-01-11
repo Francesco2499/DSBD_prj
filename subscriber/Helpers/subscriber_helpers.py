@@ -1,17 +1,23 @@
 from sib_api_v3_sdk.rest import ApiException
 from sib_api_v3_sdk import TransactionalEmailsApi, SendSmtpEmail, SendSmtpEmailSender
-from Services import categoryService
+from Services import category_service
+from configs import config
 from flask import jsonify
+from dotenv import load_dotenv
+from Helpers.retry_helpers import exponential_backoff_retry
 
 import json
 import sys
+import os
 
 sys.path.append("Services/")
+sys.path.append("configs/")
+sys.path.append("Helpers/")
 
-with open('configs/config.json') as config_file:
-    config_data = json.load(config_file)
+config_data = config.get_configs()
+load_dotenv()
 
-SENDGRID_API_KEY = config_data.get('SENDINBLUE_API_KEY')
+SENDGRID_API_KEY = os.getenv('SENDINBLUE_API_KEY') or config_data.properties.get('SENDINBLUE_API_KEY')
 SENDER = config_data.get('SENDER_MAIL')
 # PASS ProgettoDSBDSEND
 # cambia APIKEY e sender
@@ -21,25 +27,25 @@ api_instance.api_client.configuration.api_key['api-key'] = SENDGRID_API_KEY
 
 def handle_response(msg, topic_name):
     articles = json.loads(msg)
-    print("Update in ", topic_name)
+    print("Update in", topic_name)
     category = topic_name.replace("_topic", "")
-    response = categoryService.get_emails_by_category(category)
-    if response is not None and 'emails' in response:  # Verifica se il campo "emails" è presente nella risposta
-        email_list = response['emails']
-        if email_list is not None:  # Ottieni la lista di email
-            for email in email_list:
-                print("Sending mail to:", email)
-                for article in articles:
-                    print(article['title'])
-                receiver = email or SENDER
-                send_email(receiver, category, articles)
+    response = category_service.get_emails_by_category(category)
+    if response is not None:  # Verifica se il campo "emails" è presente nella risposta
+        for email in response:
+            print("Sending mail to:", SENDER.data)
+            for article in articles:
+                print(article['title'])
+            receiver = email or SENDER.data
+            send_email(receiver, category, articles)
 
-            return jsonify({"Message:", "All users notified!"})
-        else:
-            return jsonify({"Message:", "There are not users with category preference:", category})
+            return jsonify({"Message:": "All users notified!"})
+    else:
+        return jsonify({"Message:": "There are not users with category preference:" + category})
 
 
+@exponential_backoff_retry
 def send_email(receiver, category, articles):
+    print(SENDER.data)
     num_articles = len(articles)
     style = get_style_for_email()
 
@@ -63,7 +69,7 @@ def send_email(receiver, category, articles):
     '''
 
     send_smtp_email = SendSmtpEmail(
-        sender=SendSmtpEmailSender(email=SENDER),
+        sender=SendSmtpEmailSender(email=SENDER.data),
         to=[{"email": receiver}],
         subject=f'Nuovo articolo nella categoria "{category}"',
         html_content=htmlEmail
@@ -72,48 +78,40 @@ def send_email(receiver, category, articles):
     try:
         response = api_instance.send_transac_email(send_smtp_email)
         print("Email inviata con successo! ID:", response.message_id)
-    except ApiException as e:
+    except Exception as e:
         print("Errore durante l'invio dell'email:", e)
-    except ConnectionError as conn_error:
-        print("Errore di connessione durante l'invio dell'email:", conn_error)
-    except TimeoutError as timeout_error:
-        print("Timeout durante l'invio dell'email:", timeout_error)
-    except Exception as ex:
-        print("Errore generico durante l'invio dell'email:", ex)
 
 
 def get_style_for_email():
-    return '''
-         <style>
-            body {{
+    return '''<style>
+            body {
                 font-family: Arial, sans-serif;
                 line-height: 1.6;
                 margin: 0;
                 padding: 0;
-            }}
-            .container {{
+            }
+            .container {
                 width: 80%;
                 margin: 20px auto;
                 padding: 20px;
                 border: 1px solid #ccc;
                 border-radius: 5px;
                 background-color: #f9f9f9;
-            }}
-            h1 {{
+            }
+            h1 {
                 color: #333;
-            }}
-            p {{
+            }
+            p {
                 color: #666;
-            }}
-            a {{
+            }
+            a {
                 color: #0066cc;
                 text-decoration: none;
-            }}
-            a:hover {{
+            }
+            a:hover {
                 text-decoration: underline;
-            }}
-        </style>
-    '''
+            }
+        </style>'''
 
 
 def get_info_by_articles(articles):
@@ -121,7 +119,7 @@ def get_info_by_articles(articles):
 
     for item in articles:
         title = item["title"]
-        link = item["link"]
+        link = item["url"]
         article_block = f'''
             <p><strong>Titolo:</strong> <a href="{link}">{title}</a></p>
         '''

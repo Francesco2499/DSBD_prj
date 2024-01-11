@@ -6,11 +6,14 @@ services:
       dockerfile: Dockerfile
     command: 'python main.py'
     environment:
-      - isDocker=true
+      isDocker: true
+      CATEGORY_URL: "http://localhost:8082/categories/preferences?category-name="
+      SENDINBLUE_API_KEY: "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"
     networks:
-      - dsbd_prj_default
+      default
     ports:
       - "5000:5000"
+      -
 networks:
   dsbd_prj_default:
     external: true

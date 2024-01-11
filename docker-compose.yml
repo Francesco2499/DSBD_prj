@@ -3,7 +3,6 @@
 version: '3'
 
 services:
-
   db_customer:
     image: mysql:latest
     environment:
@@ -18,7 +17,34 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: dsbd_category
     ports:
-      - 3307:3306
+      - "3307:3306"
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka0:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka0
+    hostname: kafka0
+    depends_on:
+      - zookeeper
+    ports:
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ADVERTISED_HOST_NAME: kafka0
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_INTERNAL://kafka0:9092,LISTENER_EXTERNAL://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_INTERNAL:PLAINTEXT,LISTENER_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+
+    networks:
+      - default
   
   customer:
     build:
@@ -80,12 +106,43 @@ services:
       isDocker: true
       CUSTOMER_URL: http://customer:5000/customers
       CATEGORY_URL: http://category:8082/categories
+      PUBLISHER_URL: http://publisher:5001/publish_news
+      SUBSCRIBER_URL: http://subscriber:5003/subscribe
     networks:
       - default
     ports:
       - "8090:8090"
 
+  publisher:
+    build:
+      context: ./publisher
+      dockerfile: Dockerfile
+    command: 'python main.py'
+    environment:
+      IS_TEST: true
+      isDocker: true
+      NEWS_URL: https://newsapi.org/v2/top-headlines
+      NEWS_API_KEY: 'b67fa3203a504b90bd2f6297ff8aab73'
+    networks:
+      - default
+    ports:
+      - "5001:5001"
+
+  subscriber:
+    build:
+      context: ./subscriber
+      dockerfile: Dockerfile
+    command: 'python main.py'
+    environment:
+      isDocker: true
+    env_file:
+      - subscriber/.env
+    networks:
+      - default
+    ports:
+      - "5003:5003"
+
 networks:
   default:
     name: dsbd_prj_default
-    external: true
+

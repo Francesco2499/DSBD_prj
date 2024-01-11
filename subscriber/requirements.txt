@@ -1,4 +1,7 @@
 confluent-kafka
 flask
-kafka-python
 sib_api_v3_sdk
+jproperties
+requests
+python-dotenv
+pybreaker

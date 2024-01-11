@@ -1,11 +1,12 @@
 from confluent_kafka import Producer, KafkaException
 from configs.kafka import server_config
 from flask import jsonify
+
 import json
 import sys
 
-sys.path.append('configs/')
 
+sys.path.append('configs/')
 
 def delivery_callback(err, msg):
     if err:
@@ -16,7 +17,6 @@ def delivery_callback(err, msg):
 
 def publish_news_kafka(msg, category):
     topic = f'{category}_topic'
-    print(topic)
     articles = msg['articles'][:5]
     message = json.dumps(articles)
 

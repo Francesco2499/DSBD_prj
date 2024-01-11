@@ -1,4 +1,6 @@
 confluent_kafka
 requests
 flask
-python-kafka
+jproperties
+pybreaker
+apscheduler

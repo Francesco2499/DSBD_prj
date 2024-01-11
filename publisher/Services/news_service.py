@@ -1,19 +1,29 @@
-import requests
 from flask import jsonify
+from configs import config
+from Helpers.retry_helpers import exponential_backoff_retry
 
-NEWS_API_URL = 'https://newsapi.org/v2/top-headlines'
-NEWS_API_KEY = 'b67fa3203a504b90bd2f6297ff8aab73'
+import requests
+import sys
+import os
+
+sys.path.append('configs/')
+sys.path.append('Helpers/')
+
+configs = config.get_configs()
 
 
+@exponential_backoff_retry
 def get_news(category):
     try:
         params = {
             'country': 'it',
-            'apiKey': NEWS_API_KEY,
+            'apiKey': os.getenv('NEWS_API_KEY') or configs.properties.get('NEWS_API_KEY'),
             'category': category
         }
 
-        response = requests.get(NEWS_API_URL, params=params)
+        news_url = os.getenv('NEWS_URL') or configs.properties.get('NEWS_URL')
+        print(news_url)
+        response = requests.get(news_url, params=params)
 
         if response.status_code == 200:
             return response

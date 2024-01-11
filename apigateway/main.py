@@ -6,24 +6,30 @@ import os
 app = Flask(__name__)
 config = get_configs()
 
-# URL del cusromer service
+# URL del customer service
 CUSTOMER_URL = os.getenv('CUSTOMER_URL') or config.properties.get('CUSTOMER_URL')
 CATEGORY_URL = os.getenv('CATEGORY_URL') or config.properties.get('CATEGORY_URL')
+PUBLISHER_URL = os.getenv('PUBLISHER_URL') or config.properties.get('PUBLISHER_URL')
+SUBSCRIBER_URL = os.getenv('SUBSCRIBER_URL') or config.properties.get('SUBSCRIBER_URL')
 
 
 @app.route('/api/<string:service>/<string:subpath>', methods=['GET', 'POST'])
 def forward_requests(service, subpath):
     # Componi l'URL completo del servizio sottostante
-    if(service == 'customers'):
-        if(subpath):
+    if service == 'customers':
+        if subpath:
             service_endpoint = f"{CUSTOMER_URL}/{subpath}"
         else:
             service_endpoint = f"{CUSTOMER_URL}"
-    elif (service == 'categories'):
-        if(subpath):
+    elif service == 'categories':
+        if subpath:
             service_endpoint = f"{CATEGORY_URL}/{subpath}"
         else:
             service_endpoint = f"{CATEGORY_URL}"
+    elif service == 'publisher':
+        service_endpoint = f"{PUBLISHER_URL}"
+    elif service == 'subscriber':
+        service_endpoint = f"{SUBSCRIBER_URL}"
     else:
         return jsonify({"error": f"Route for service: {service} not defined"}), 404
     # Inoltra la richiesta al servizio
@@ -38,6 +44,7 @@ def forward_requests(service, subpath):
 
     # Restituisci la risposta dal servizio sottostante
     return jsonify(response.json())
+
 
 @app.route('/api/<string:service>', methods=['GET', 'POST'])
 def forward_requests_no_subpath(service):
