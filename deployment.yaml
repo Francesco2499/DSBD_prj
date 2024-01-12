@@ -394,7 +394,7 @@ spec:
           command: ["python", "main.py"]
           env:
             - name: SENDINBLUE_API_KEY
-              value: "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"
+              value: "Insert APIKEY"
             - name: CATEGORY_URL
               value: "http://category-service:8082/categories/preferences?category-name="
       ports:
