@@ -392,9 +392,11 @@ spec:
         - name: subscriber
           image: dsbdproject/dsbd_prj-subscriber:latest
           command: ["python", "main.py"]
-          envFrom:
-            - configMapRef:
-                name: subscriber-config
+          env:
+            - name: SENDINBLUE_API_KEY
+              value: "Insert APIKEY"
+            - name: CATEGORY_URL
+              value: "http://category-service:8082/categories/preferences?category-name="
       ports:
         - containerPort: 5003
 ---

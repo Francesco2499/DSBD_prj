@@ -102,6 +102,8 @@ services:
     depends_on:
       - customer
       - category
+      - publisher
+      - subscriber
     environment:
       isDocker: true
       CUSTOMER_URL: http://customer:5000/customers
@@ -133,6 +135,8 @@ services:
       context: ./subscriber
       dockerfile: Dockerfile
     command: 'python main.py'
+    depends_on:
+      - category
     environment:
       isDocker: true
     env_file:
