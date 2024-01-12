@@ -51,7 +51,7 @@ spec:
     spec:
       containers:
         - name: kafka
-          image: wurstmeister/kafka:2.12-2.5.1
+          image: confluentinc/kafka:2.12-2.5.1
           ports:
             - containerPort: 9092
           env:
@@ -394,7 +394,7 @@ spec:
           command: ["python", "main.py"]
           env:
             - name: SENDINBLUE_API_KEY
-              value: "Insert APIKEY"
+              value: "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"
             - name: CATEGORY_URL
               value: "http://category-service:8082/categories/preferences?category-name="
       ports:
