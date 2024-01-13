@@ -38,43 +38,35 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kafka
+  name: kafka0
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: kafka
+      app: kafka0
   template:
     metadata:
       labels:
-        app: kafka
+        app: kafka0
     spec:
       containers:
-        - name: kafka
+        - name: kafka0
           image: confluentinc/cp-kafka:latest
-          ports:
-            - containerPort: 9092
           env:
             - name: KAFKA_ADVERTISED_LISTENERS
-              value: PLAINTEXT://kafka:9092
-            - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
-              value: "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
-            - name: KAFKA_LISTENERS
-              value: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:19092
-            - name: KAFKA_INTER_BROKER_LISTENER_NAME
-              value: PLAINTEXT
+              value: PLAINTEXT://kafka0:9092
             - name: KAFKA_ZOOKEEPER_CONNECT
               value: zookeeper:2181
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: kafka
+  name: kafka0
 spec:
   ports:
     - port: 9092
   selector:
-    app: kafka
+    app: kafka0
 ---
 # db-customer-deployment.yaml
 apiVersion: apps/v1
@@ -315,6 +307,10 @@ spec:
           value: "http://customer-service:5000/customers"
         - name: CATEGORY_URL
           value: "http://category-service:8082/categories"
+        - name: PUBLISHER_URL 
+          value: http://publisher-service:5001/publish_news
+        - name: SUBSCRIBER_URL
+          value: http://subscriber-service:5003/subscribe
 ---
 apiVersion: v1
 kind: Service
@@ -370,7 +366,7 @@ spec:
     app: publisher
   ports:
     - protocol: TCP
-      port: 80
+      port: 5001
       targetPort: 5001
 ---
 # subscriber-deployment.yaml
@@ -403,7 +399,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: subscriber
+  name: subscriber-service
 spec:
   ports:
     - port: 5003
