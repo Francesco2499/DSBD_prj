@@ -55,6 +55,12 @@ spec:
           env:
             - name: KAFKA_ADVERTISED_LISTENERS
               value: PLAINTEXT://kafka0:9092
+            - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+              value: "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+            - name: KAFKA_LISTENERS
+              value: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:19092
+            - name: KAFKA_INTER_BROKER_LISTENER_NAME
+              value: PLAINTEXT
             - name: KAFKA_ZOOKEEPER_CONNECT
               value: zookeeper:2181
 ---
@@ -389,6 +395,8 @@ spec:
           image: dsbdproject/dsbd_prj-subscriber:latest
           command: ["python", "main.py"]
           env:
+            - name: isDocker
+              value: "true"
             - name: SENDINBLUE_API_KEY
               value: "Insert APIKEY"
             - name: CATEGORY_URL
