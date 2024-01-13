@@ -20,9 +20,9 @@ spec:
             - containerPort: 2181
           env:
           - name: ZOOKEEPER_CLIENT_PORT
-            value: 2181
+            value: "2181"
           - name: ZOOKEEPER_TICK_TIME
-            value: 2000
+            value: "2000"
 ---
 apiVersion: v1
 kind: Service
@@ -40,7 +40,7 @@ kind: Deployment
 metadata:
   name: kafka
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: kafka
@@ -51,20 +51,20 @@ spec:
     spec:
       containers:
         - name: kafka
-          image: confluentinc/kafka:2.12-2.5.1
+          image: confluentinc/cp-kafka:latest
           ports:
             - containerPort: 9092
           env:
             - name: KAFKA_ADVERTISED_LISTENERS
-              value: PLAINTEXT://kafka:9092
+              value: "PLAINTEXT://kafka:9092"
             - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
               value: "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
             - name: KAFKA_LISTENERS
-              value: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:19092
+              value: "PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:19092"
             - name: KAFKA_INTER_BROKER_LISTENER_NAME
-              value: PLAINTEXT
+              value: "PLAINTEXT"
             - name: KAFKA_ZOOKEEPER_CONNECT
-              value: zookeeper:2181
+              value: "zookeeper:2181"
 ---
 apiVersion: v1
 kind: Service
@@ -96,9 +96,9 @@ spec:
         image: mysql:latest
         env:
         - name: MYSQL_ROOT_PASSWORD
-          value: root
+          value: "root"
         - name: MYSQL_DATABASE
-          value: dsbd_customer
+          value: "dsbd_customer"
         volumeMounts:
         - name: customer-persistent-storage
           mountPath: /var/lib/mysql
@@ -142,9 +142,9 @@ spec:
         - containerPort: 3306
         env:
         - name: MYSQL_ROOT_PASSWORD
-          value: root
+          value: "root"
         - name: MYSQL_DATABASE
-          value: dsbd_category
+          value: "dsbd_category"
         volumeMounts:
         - name: category-persistent-storage
           mountPath: /var/lib/mysql
@@ -189,13 +189,13 @@ spec:
         - name: isDocker
           value: "true"
         - name: MYSQL_HOST
-          value: db-customer-service
+          value: "db-customer-service"
         - name: MYSQL_DATABASE
-          value: dsbd_customer
+          value: "dsbd_customer"
         - name: MYSQL_ROOT_PASSWORD
-          value: root
+          value: "root"
         - name: AUTH_URL
-          value: http://authentication-service:5002/authenticate
+          value: "http://authentication-service:5002/authenticate"
 ---
 apiVersion: v1
 kind: Service
@@ -232,15 +232,15 @@ spec:
         - name: isDocker
           value: "true"
         - name: MYSQL_HOST
-          value: db-category-service
+          value: "db-category-service"
         - name: MYSQL_DATABASE
-          value: dsbd_category
+          value: "dsbd_category"
         - name: MYSQL_ROOT_PASSWORD
-          value: root
+          value: "root"
         - name: MYSQL_PORT
           value: "3307"
         - name: AUTH_URL
-          value: http://authentication-service:5002/verify_token
+          value: "http://authentication-service:5002/verify_token"
 ---
 apiVersion: v1
 kind: Service
@@ -358,8 +358,6 @@ spec:
               value: "https://newsapi.org/v2/top-headlines"
             - name: NEWS_API_KEY
               value: "b67fa3203a504b90bd2f6297ff8aab73"
-      ports:
-        - containerPort: 5001
 ---
 apiVersion: v1
 kind: Service
@@ -370,8 +368,9 @@ spec:
     app: publisher
   ports:
     - protocol: TCP
-      port: 80
+      port: 5001
       targetPort: 5001
+      apiVersion: v1
 ---
 # subscriber-deployment.yaml
 apiVersion: apps/v1
@@ -397,8 +396,6 @@ spec:
               value: "Insert APIKEY"
             - name: CATEGORY_URL
               value: "http://category-service:8082/categories/preferences?category-name="
-      ports:
-        - containerPort: 5003
 ---
 apiVersion: v1
 kind: Service
@@ -406,9 +403,10 @@ metadata:
   name: subscriber
 spec:
   ports:
-    - port: 5003
-  selector:
-    app: subscriber
+    - protocol: TCP
+      port: 5003
+      targetPort: 5003
+      apiVersion: v1
 ---
 #PV e PVC for customer service
 apiVersion: v1
