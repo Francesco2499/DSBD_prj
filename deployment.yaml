@@ -38,19 +38,19 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kafka0
+  name: kafka-broker
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: kafka0
+      app: kafka-broker
   template:
     metadata:
       labels:
-        app: kafka0
+        app: kafka-broker
     spec:
       containers:
-        - name: kafka0
+        - name: kafka-broker
           image: confluentinc/cp-kafka:latest
           env:
             - name: KAFKA_ADVERTISED_LISTENERS
@@ -58,21 +58,28 @@ spec:
             - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
               value: "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
             - name: KAFKA_LISTENERS
-              value: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:19092
+              value: PLAINTEXT://:9092
             - name: KAFKA_INTER_BROKER_LISTENER_NAME
               value: PLAINTEXT
             - name: KAFKA_ZOOKEEPER_CONNECT
               value: zookeeper:2181
+            - name: KAFKA_CONTROLLER_SOCKET_TIMEOUT_MS
+              value: "600000"
+            - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+              value: '1'
+            - name: KAFKA_AUTO_CREATE_TOPICS_ENABLE
+              value: "true"
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: kafka0
 spec:
-  ports:
-    - port: 9092
   selector:
-    app: kafka0
+    app: kafka-broker
+  ports:
+    - port: 9092 
+      targetPort: 9092
 ---
 # db-customer-deployment.yaml
 apiVersion: apps/v1
