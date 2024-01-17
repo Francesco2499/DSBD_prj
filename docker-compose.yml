@@ -67,7 +67,9 @@ services:
     image: prom/prometheus
     container_name: prometheus
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus.yml:/etc/prometheus/prometheus.
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
     ports:
       - "9090:9090"
     networks:
@@ -77,10 +79,11 @@ services:
     build:
       context: ./SLA_Manager
       dockerfile: Dockerfile
-    ports:
-      - "5005:5005"
+    command: 'python main.py'
     networks:
       - default
+    ports:
+      - "5005:5005"
 
   customer:
     build:
