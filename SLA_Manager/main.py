@@ -11,6 +11,7 @@ prom = PrometheusConnect(url=prometheus_url, disable_ssl=True)
 def create_customer():
     result = prom.custom_query(query='container_cpu_usage_seconds_total')
     print(result)
+    return result
 
 
 if __name__ == '__main__':
