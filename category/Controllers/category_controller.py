@@ -1,5 +1,6 @@
-from flask import  request, jsonify
+from flask import request, jsonify
 from Services.category_service import CategoryService
+
 
 class CategoryController:
     def __init__(self):
@@ -8,7 +9,7 @@ class CategoryController:
     def get_all_categories(self):
         categories = self.category_service.get_all_categories()
         categoryList = [category.__str__() for category in categories]
-        return {"categories" : categoryList }
+        return {"categories": categoryList}
 
     def get_category_by_id(self, category_id):
         category = self.category_service.get_category_by_id(category_id)
@@ -16,21 +17,21 @@ class CategoryController:
             return category.__str__()
         else:
             return jsonify(error="Category not found"), 404
-    
+
     def get_category_by_name(self, category_name):
         category = self.category_service.get_category_by_name(category_name)
         if category:
             return category.__str__()
         else:
             return jsonify(error="Category not found"), 404
-        
+
     def get_emails_by_category(self, category_name):
-            emailList = self.category_service.get_emails_by_category(category_name)
-            if emailList:
-                return {"emails" : emailList }
-            else:
-                return{"emails" : []}
-        
+        emailList = self.category_service.get_emails_by_category(category_name)
+        if emailList:
+            return {"emails": emailList}
+        else:
+            return {"emails": []}
+
     def create_category(self, data):
         name = data.get('name')
 
@@ -42,7 +43,7 @@ class CategoryController:
         except Exception as e:
             print(e)
             return jsonify("Error: " + e.args[0].__str__()), 400
-        
+
     def add_preference(self, data):
         category_name = data.get('categoryName')
         user_email = data.get('userEmail')
@@ -55,11 +56,12 @@ class CategoryController:
         except Exception as e:
             print(e)
             return jsonify("Error: " + e.args[0].__str__()), 400
-        
-    def verify_token(self,token):
+
+    def verify_token(self, token):
         try:
             return self.category_service.verify_token(token)
         except Exception as e:
-            return {"message": 'Authentication failed:', "Error": e.args[0].__str__(), 'valid': False}  
+            return {"message": 'Authentication failed:', "Error": e.args[0].__str__(), 'valid': False}
+
 
 category_controller = CategoryController()
