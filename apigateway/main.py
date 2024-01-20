@@ -2,8 +2,10 @@ from flask import Flask, request, jsonify
 import requests
 from config import get_configs
 import os
+from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
+metrics = PrometheusMetrics(app)
 config = get_configs()
 
 # URL del customer service
@@ -51,4 +53,4 @@ def forward_requests_no_subpath(service):
     return forward_requests(service, None)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True, port=int(get_configs().properties.get('port')))
+    app.run(host='0.0.0.0', port=int(get_configs().properties.get('port')))
