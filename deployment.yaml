@@ -497,31 +497,35 @@ spec:
         ports:
         - containerPort: 8080
         volumeMounts:
-        - mountPath: /rootfs
-          name: rootfs
+        - name: rootfs-volume
+          mountPath: /rootfs
           readOnly: true
-        - mountPath: /var/run
-          name: var-run
-          readOnly: false
-        - mountPath: /sys
-          name: sys
+        - name: var-run-volume
+          mountPath: /var/run
+        - name: sys-volume
+          mountPath: /sys
           readOnly: true
-        - mountPath: /var/lib/docker/
-          name: var-lib-docker
+        - name: docker-volume
+          mountPath: /var/lib/docker
           readOnly: true
+        - name: machine-id-volume
+          mountPath: /etc/machine-id
       volumes:
-      - name: rootfs
+      - name: rootfs-volume
         hostPath:
           path: /
-      - name: var-run
+      - name: var-run-volume
         hostPath:
           path: /var/run
-      - name: sys
+      - name: sys-volume
         hostPath:
           path: /sys
-      - name: var-lib-docker
+      - name: docker-volume
         hostPath:
           path: /var/lib/docker
+      - name: machine-id-volume
+        hostPath:
+          path: /etc/machine-id
 ---
 apiVersion: v1
 kind: Service
@@ -546,10 +550,10 @@ data:
       scrape_interval: 15s
 
     scrape_configs:
-      - job_name: 'flask-app'
+      - job_name: 'apigateway'
         static_configs:
           - targets: ['apigateway-service:8090']
-          
+
       - job_name: 'cadvisor'
         static_configs:
           - targets: ['cadvisor-service:8080']

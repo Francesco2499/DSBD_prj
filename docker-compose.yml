@@ -52,6 +52,7 @@ services:
   cadvisor:
     image: google/cadvisor:latest
     container_name: cadvisor
+    privileged: true
     ports:
       - "8080:8080"
     volumes:
@@ -59,6 +60,8 @@ services:
       - /var/run:/var/run:rw
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
+      - /etc/machine-id:/etc/machine-id
+      - /dev/kmsg:/dev/kmsg
     command: [ "--port=8080" ]
     networks:
       - default
