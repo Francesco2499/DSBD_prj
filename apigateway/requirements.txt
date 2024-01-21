@@ -2,3 +2,4 @@ werkzeug
 flask
 requests
 jproperties
+prometheus_flask_exporter
