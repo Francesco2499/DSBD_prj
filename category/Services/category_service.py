@@ -60,10 +60,10 @@ class CategoryService:
         else:
             return None
     
-    def serializeCategory(self, caregory_from_db):
+    def serializeCategory(self, category_from_db):
         return CategoryModel(
-            caregory_from_db.id,
-            caregory_from_db.name
+            category_from_db.id,
+            category_from_db.name
         )
     
     def verify_token(self, token):

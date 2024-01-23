@@ -1,0 +1,7 @@
+prometheus_api_client
+flask
+werkzeug
+SQLAlchemy
+requests
+mysqlclient
+jproperties

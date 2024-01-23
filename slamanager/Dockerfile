@@ -1,8 +1,8 @@
 FROM python:3.10
 
-COPY . /SLA_Manager
+COPY . /slamanager
 
-WORKDIR /SLA_Manager
+WORKDIR /slamanager
 
 
 EXPOSE 5005

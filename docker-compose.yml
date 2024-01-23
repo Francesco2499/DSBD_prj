@@ -23,6 +23,16 @@ services:
     volumes:
       - vol_category:/var/lib/mysql
 
+  db_slamanager:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: dsbd_slamanager
+    ports:
+      - "3308:3306"
+    volumes:
+      - vol_slamanager:/var/lib/mysql
+
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     environment:
@@ -80,9 +90,17 @@ services:
 
   slamanager:
     build:
-      context: ./SLA_Manager
+      context: ./slamanager
       dockerfile: Dockerfile
     command: 'python main.py'
+    depends_on:
+      - db_slamanager
+    environment:
+      isDocker: true
+      MYSQL_HOST: db_slamanager
+      MYSQL_DATABASE: 'dsbd_slamanager'
+      MYSQL_ROOT_PASSWORD: 'root'
+      PROMETHEUS_URL: http://prometheus:9090
     networks:
       - default
     ports:
@@ -197,3 +215,4 @@ volumes:
   vol_customer:
   vol_category:
   vol_prometheus:
+  vol_slamanager:
