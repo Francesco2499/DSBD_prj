@@ -54,8 +54,8 @@ class SlaController:
     
     def fetch_metrics(self):
         try:
-            self.sla_service.fetch_metrics()
-            return jsonify({'message': 'Metrics fetched and saved successfully'}), 200
+            response = self.sla_service.fetch_metrics()
+            return response, 200
         except Exception as e:
             print(e)
             return jsonify("Error: " + e.args[0].__str__()), 500

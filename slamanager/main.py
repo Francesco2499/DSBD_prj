@@ -37,7 +37,7 @@ def add_sla_to_metric():
     sla_value = data.get('sla_value')
     service = data.get('service')
 
-    if metric_name and sla_value and service:
+    if metric_name and sla_value:
         return sla_controller.add_sla_to_metric(metric_name, sla_value, service)
     else:
         return jsonify("Error: Metric name or SLA name or service not provided in the request body"), 400

@@ -1,3 +1,4 @@
+from flask import jsonify
 import requests
 from Models.slametric_model import SlaMetricModel
 from Models.metric_model import MetricModel
@@ -47,7 +48,7 @@ class SlaService:
             metric = self.get_metric_by_name(metric_name)
             if metric:
                 metric_id = metric.metric_id
-                sla_metric = SlaMetric(metricId=metric_id, desideredValue=sla_value, service=service)
+                sla_metric = SlaMetric(metricId=metric_id, name = metric_name, desideredValue=sla_value, service=service)
                 new_sla = self.slametric_repository.save_metric(sla_metric)
                 return new_sla
             else:
@@ -69,18 +70,45 @@ class SlaService:
     def serializeSlaMetric(self, sla_metric_from_db):
         return SlaMetricModel(
             sla_metric_from_db.metricId,
+            sla_metric_from_db.name,
             sla_metric_from_db.desideredValue,
+            sla_metric_from_db.currentValue,
             sla_metric_from_db.numberViolations,
-            sla_metric_from_db.service,
-            sla_metric_from_db.lastCheckTime
+            sla_metric_from_db.lastCheckTime,
+            sla_metric_from_db.service
         )
     
     def fetch_metrics(self):
-        prometheus_url = os.getenv('PROMETHEUS_URL') or config.properties.get('PROMETHEUS_URL')
-        prom = PrometheusConnect(url=prometheus_url)
-        metrics = self.get_all_sla_metrics()
-        for metric in metrics:
-            metric_name = self.get_metric_by_id(metric.metric_id).get_name()
-            custom_query = f'{metric_name}'
-            result = prom.custom_query(query=custom_query)
-            print(result)
+        try:
+            prometheus_url = os.getenv('PROMETHEUS_URL') or config.properties.get('PROMETHEUS_URL')
+            prom = PrometheusConnect(url=prometheus_url)
+            metrics = self.get_all_sla_metrics()
+            response_data = []
+            for metric in metrics:
+                #metric_name = self.get_metric_by_id(metric.metric_id).get_name()
+                custom_query = f'{metric.name}{{container_label_com_docker_compose_service="{metric.service}"}}'
+                result = prom.custom_query(query=custom_query)
+                print(result)
+                for r in result:
+                    service = r.get('metric').get('container_label_com_docker_compose_service')
+                    value = float(r.get('value')[1])
+                    if service and value:
+                        if metric.desired_value <= value:
+                            violation = metric.violations + 1
+                        else:
+                            violation = metric.violations
+                        metric_data = SlaMetric(name=metric.name, desideredValue=metric.desired_value, currentValue=value, service=service, numberViolations=violation)                        
+                        update_metric = self.slametric_repository.save_metric(metric_data)
+                        m =  {
+                                'metricId': update_metric.metricId,
+                                'name': update_metric.name,
+                                'desideredValue': update_metric.desideredValue,
+                                'currentValue': update_metric.currentValue,
+                                'numberViolations': update_metric.numberViolations,
+                                'lastCheckTime': update_metric.lastCheckTime,
+                                'service': update_metric.service
+                            }
+                        response_data.append(m)
+            return jsonify(response_data)
+        except Exception as e:
+            raise e
