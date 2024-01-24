@@ -1,6 +1,6 @@
 from MySQLdb import IntegrityError
 # from mysqlx import Session
-from sqlalchemy import ForeignKey, UniqueConstraint, create_engine, Column, Integer, String, Float, Double, DateTime, and_
+from sqlalchemy import BOOLEAN,  ForeignKey, UniqueConstraint, create_engine, Column, Integer, String, Float, Double, DateTime, and_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from Models.metric_repository import Base
@@ -18,9 +18,7 @@ class SlaMetric(Base):
     metricId = Column(Integer, ForeignKey('metrics.id'))
     name = Column(String(256))
     desideredValue = Column(Double, nullable=False)
-    numberViolations = Column(Double, default=0)
-    currentValue = Column(Float, default=0)
-    lastCheckTime = Column(DateTime, default=datetime.now(timezone.utc))
+    lastUpdateTime = Column(DateTime, default=datetime.now(timezone.utc))
     service = Column(String(256))
     metric = relationship("Metric", back_populates='slametrics')
 
@@ -49,9 +47,7 @@ class SlaRepository:
             if existing_metric:
                 # Se la metrica esiste già, aggiorna i suoi valori
                 existing_metric.desideredValue = metric.desideredValue
-                existing_metric.lastCheckTime = datetime.now(timezone.utc)
-                existing_metric.currentValue = metric.currentValue if metric.currentValue else existing_metric.currentValue
-                existing_metric.numberViolations = metric.numberViolations if metric.numberViolations else existing_metric.numberViolations
+                existing_metric.lastUpdateTime = datetime.now(timezone.utc)
             else:
                 # Se la metrica non esiste, esegui una nuova insert
                 self.session.add(metric)
@@ -73,25 +69,6 @@ class SlaRepository:
         else:    
             return metric
 
-    def check_metric_status(self, metric_id, current_value):
-        metric = self.session.query(SlaMetric).filter_by(metricId=metric_id)
-        metric.violations = current_value > metric.desired_value
-        return metric.violations
-
-    def get_violations_in_time_range(self, metric_id, start_time, end_time):
-        result = (self.session.query(SlaMetric).filter_by(metricId=metric_id, violations=True)
-                  .filter(and_(
-                    SlaMetric.last_check_time >= start_time,
-                    SlaMetric.last_check_time <= end_time,
-                  ))
-                  .count())
-        return result
-
-    def get_probability_of_violation(self, next_interval_minutes):
-        # Logica per calcolare la probabilità di violazione nel prossimo intervallo di tempo
-        current_violation_rate = self.violations / (
-                (datetime.datetime.utcnow() - self.last_check_time).total_seconds() / 60)
-        return current_violation_rate * next_interval_minutes
 
     def get_all_sla_metrics(self):
         return self.session.query(SlaMetric).all()

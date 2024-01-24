@@ -52,9 +52,17 @@ class SlaController:
         sla_metricList = [sla_metric.__str__() for sla_metric in sla_metrics]
         return {"sla_metrics": sla_metricList}
     
-    def fetch_metrics(self):
+    def get_violations(self, time_range):
         try:
-            response = self.sla_service.fetch_metrics()
+            response = self.sla_service.get_violations(time_range)
+            return response, 200
+        except Exception as e:
+            print(e)
+            return jsonify("Error: " + e.args[0].__str__()), 500
+        
+    def check_sla(self):
+        try:
+            response = self.sla_service.check_sla()
             return response, 200
         except Exception as e:
             print(e)

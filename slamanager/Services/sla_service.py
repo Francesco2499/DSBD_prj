@@ -72,13 +72,11 @@ class SlaService:
             sla_metric_from_db.metricId,
             sla_metric_from_db.name,
             sla_metric_from_db.desideredValue,
-            sla_metric_from_db.currentValue,
-            sla_metric_from_db.numberViolations,
-            sla_metric_from_db.lastCheckTime,
+            sla_metric_from_db.lastUpdateTime,
             sla_metric_from_db.service
         )
     
-    def fetch_metrics(self):
+    def get_violations(self, time_range):
         try:
             prometheus_url = os.getenv('PROMETHEUS_URL') or config.properties.get('PROMETHEUS_URL')
             prom = PrometheusConnect(url=prometheus_url)
@@ -86,6 +84,36 @@ class SlaService:
             response_data = []
             for metric in metrics:
                 #metric_name = self.get_metric_by_id(metric.metric_id).get_name()
+                custom_query = f'{metric.name}{{container_label_com_docker_compose_service="{metric.service}"}}[{time_range}]'
+                result = prom.custom_query(query=custom_query)
+                print(result)
+                for r in result:
+                    service = r.get('metric').get('container_label_com_docker_compose_service')
+                    values = r.get('values')
+                    if service and values:
+                        nviolation = 0
+                        for value in values:
+                            if metric.desired_value <= float(value[1]):
+                                nviolation = nviolation + 1                 
+                        metric_data =  {
+                                'name': metric.name,
+                                'desideredValue': metric.desired_value,
+                                'lastUpdateSLATime': metric.last_update_time,
+                                'numberOfViolation': nviolation,
+                                'service': metric.service
+                        }
+                        response_data.append(metric_data)
+            return jsonify(response_data)
+        except Exception as e:
+            raise e
+        
+    def check_sla(self):
+        try:
+            prometheus_url = os.getenv('PROMETHEUS_URL') or config.properties.get('PROMETHEUS_URL')
+            prom = PrometheusConnect(url=prometheus_url)
+            metrics = self.get_all_sla_metrics()
+            response_data = []
+            for metric in metrics:
                 custom_query = f'{metric.name}{{container_label_com_docker_compose_service="{metric.service}"}}'
                 result = prom.custom_query(query=custom_query)
                 print(result)
@@ -93,22 +121,19 @@ class SlaService:
                     service = r.get('metric').get('container_label_com_docker_compose_service')
                     value = float(r.get('value')[1])
                     if service and value:
-                        if metric.desired_value <= value:
-                            violation = metric.violations + 1
+                        if metric.desired_value <= float(value):
+                            violation = True
                         else:
-                            violation = metric.violations
-                        metric_data = SlaMetric(name=metric.name, desideredValue=metric.desired_value, currentValue=value, service=service, numberViolations=violation)                        
-                        update_metric = self.slametric_repository.save_metric(metric_data)
-                        m =  {
-                                'metricId': update_metric.metricId,
-                                'name': update_metric.name,
-                                'desideredValue': update_metric.desideredValue,
-                                'currentValue': update_metric.currentValue,
-                                'numberViolations': update_metric.numberViolations,
-                                'lastCheckTime': update_metric.lastCheckTime,
-                                'service': update_metric.service
-                            }
-                        response_data.append(m)
+                            violation = False                      
+                        metric_data =  {
+                                    'name': metric.name,
+                                    'desideredValue': metric.desired_value,
+                                    'currentValue': value,
+                                    'lastUpdateSLATime': metric.last_update_time,
+                                    'violationStatus': violation,
+                                    'service': metric.service
+                        }
+                    response_data.append(metric_data)
             return jsonify(response_data)
         except Exception as e:
             raise e

@@ -46,9 +46,14 @@ def add_sla_to_metric():
 def get_all_sla_metrics():
     return sla_controller.get_all_sla_metrics()
 
-@app.route('/fetch_metrics', methods=['GET'])
-def fetch_metrics():
-    return sla_controller.fetch_metrics()
+@app.route('/violations', methods=['GET'])
+def get_violations():
+    time_range = request.args.get('time-range')
+    return sla_controller.get_violations(time_range)
+
+@app.route('/check_sla', methods=['GET'])
+def check_sla():
+    return sla_controller.check_sla()
 
 
 if __name__ == '__main__':
