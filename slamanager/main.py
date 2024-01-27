@@ -34,13 +34,23 @@ def create_metric():
 def add_sla_to_metric():
     data = request.json
     metric_name = data.get('metric_name')
-    sla_value = data.get('sla_value')
     service = data.get('service')
 
-    if metric_name and sla_value:
-        return sla_controller.add_sla_to_metric(metric_name, sla_value, service)
+    if metric_name and service:
+        return sla_controller.add_sla_to_metric(data)
     else:
-        return jsonify("Error: Metric name or SLA name or service not provided in the request body"), 400
+        return jsonify("Error: Metric name or service not provided in the request body"), 400
+    
+@app.route('/delete_sla', methods=['POST'])
+def delete_sla():
+    data = request.json
+    metric_name = data.get('metric_name')
+    service = data.get('service')
+
+    if metric_name and service:
+        return sla_controller.delete_sla(data)
+    else:
+        return jsonify("Error: Metric name or service not provided in the request body"), 400
     
 @app.route('/sla_metrics/all', methods=['GET'])
 def get_all_sla_metrics():
@@ -55,6 +65,22 @@ def get_violations():
 def check_sla():
     return sla_controller.check_sla()
 
+@app.route('/forecast_violations', methods=['GET'])
+def get_forecast_violations():
+    time_range = request.args.get('time-range')
+    return sla_controller.get_forecast_violations(time_range)
 
 if __name__ == '__main__':
+    metric_names = ['container_memory_usage_bytes', 'container_start_time_seconds', 'container_network_transmit_errors_total']
+    existing_metrics = sla_controller.get_all_metrics().get('metrics', [])
+    existing_metric_names = [metric.get('Name') for metric in existing_metrics]
+
+    for metric_name in metric_names:
+        if metric_name not in existing_metric_names:
+            data = {
+                "name": metric_name
+            }
+            sla_controller.create_metric(data)
+        
+            create_metric(metric_name)
     app.run(host='0.0.0.0', debug=True, port=int(get_configs().properties.get('port')))

@@ -1,10 +1,12 @@
 class SlaMetricModel:
-    def __init__(self, metric_id, name, desired_value, last_update_time, service):
+    def __init__(self, metric_id, name, desired_value, last_update_time, service, max_value, min_value):
         self.metric_id = metric_id
         self.name = name
         self.desired_value = desired_value
         self.last_update_time = last_update_time
         self.service = service
+        self.max_value = max_value
+        self.min_value = min_value
 
     def get_id(self):
         return self.id
@@ -23,6 +25,12 @@ class SlaMetricModel:
     
     def get_service(self):
         return self.service
+    
+    def get_min_value(self):
+        return self.min_value
+    
+    def get_max_value(self):
+        return self.max_value
 
     def set_name(self, name):
         self.name = name
@@ -36,11 +44,19 @@ class SlaMetricModel:
     def set_service(self, service):
         self.service = service
 
+    def set_max_value(self, max_value):
+        self.max_value = max_value
+
+    def set_min_value(self, min_value):
+        self.min_value = min_value
+
     def __str__(self):
         return {
             "MetricId": self.metric_id,
             "Name": self.name,
             "DesiredValue": self.desired_value,
             "LastUpdateTime": self.last_update_time,
-            "Service": self.service
+            "Service": self.service,
+            "MinValue": self.min_value,
+            "MaxValue": self.max_value
         }

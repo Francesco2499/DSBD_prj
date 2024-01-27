@@ -18,7 +18,7 @@ class SlaController:
         else:
             return jsonify(error="Metric not found"), 404
 
-    def get_metric_by_name(self, metric_name):
+    def get_sla_metric(self, metric_name):
         metric = self.sla_service.get_metric_by_name(metric_name)
         if metric:
             return metric.__str__()
@@ -37,12 +37,29 @@ class SlaController:
             print(e)
             return jsonify("Error: " + e.args[0].__str__()), 400
         
-    def add_sla_to_metric(self, metric_name, sla_value, service):
-        if not metric_name or not sla_value:
-            return jsonify(error="Metric Name ,SLA Value and Service are required"), 400
+    def add_sla_to_metric(self, data):
+        metric_name = data.get('metric_name')
+        service = data.get('service')
+        if not metric_name or not service:
+            return jsonify(error="Metric Name and Service are required"), 400
         try:
-            new_sla = self.sla_service.add_sla_to_metric(metric_name, sla_value, service)
+            new_sla = self.sla_service.add_sla_to_metric(data)
             return jsonify(message="SLA created successfully with id: " + str(new_sla.id)), 201
+        except Exception as e:
+            print(e)
+            return jsonify("Error: " + e.args[0].__str__()), 400
+        
+    def delete_sla(self, data):
+        metric_name = data.get('metric_name')
+        service = data.get('service')
+        if not metric_name or not service:
+            return jsonify(error="Metric Name and Service are required"), 400
+        try:
+            metric = self.sla_service.delete_sla(data)
+            if metric:
+                return jsonify(message="SLA deleted successfully with id"), 200
+            else:
+                return jsonify(message="Metric not found"), 400
         except Exception as e:
             print(e)
             return jsonify("Error: " + e.args[0].__str__()), 400
@@ -63,6 +80,14 @@ class SlaController:
     def check_sla(self):
         try:
             response = self.sla_service.check_sla()
+            return response, 200
+        except Exception as e:
+            print(e)
+            return jsonify("Error: " + e.args[0].__str__()), 500
+        
+    def get_forecast_violations(self, timerange):
+        try:
+            response = self.sla_service.get_forecast_violations(timerange)
             return response, 200
         except Exception as e:
             print(e)

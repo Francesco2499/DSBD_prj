@@ -17,9 +17,11 @@ class SlaMetric(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     metricId = Column(Integer, ForeignKey('metrics.id'))
     name = Column(String(256))
-    desideredValue = Column(Double, nullable=False)
+    desiredValue = Column(Double, default=0)
     lastUpdateTime = Column(DateTime, default=datetime.now(timezone.utc))
     service = Column(String(256))
+    maxValue = Column(Double, default=0)
+    minValue = Column(Double, default=0)
     metric = relationship("Metric", back_populates='slametrics')
 
 __table_args__ = (
@@ -46,7 +48,9 @@ class SlaRepository:
 
             if existing_metric:
                 # Se la metrica esiste già, aggiorna i suoi valori
-                existing_metric.desideredValue = metric.desideredValue
+                existing_metric.desiredValue = metric.desiredValue
+                existing_metric.maxValue = metric.maxValue
+                existing_metric.minValue = metric.minValue
                 existing_metric.lastUpdateTime = datetime.now(timezone.utc)
             else:
                 # Se la metrica non esiste, esegui una nuova insert
@@ -76,11 +80,16 @@ class SlaRepository:
     def get_sla_metric_by_id(self, metric_id):
         return self.session.query(SlaMetric).filter_by(metricId=metric_id).first()
 
-    def get_sla_metric_by_name(self, name):
-        return self.session.query(SlaMetric).filter_by(name=name).first()
+    def get_sla_metric(self, name, service):
+        metric = self.session.query(SlaMetric).filter_by(name=name, service=service).first()
+        if metric:
+            return metric
+        else:
+            return None
 
-    def delete_metric(self, metric_id):
-        metric_to_delete = self.session.query(SlaMetric).filter_by(metricId=metric_id).first()
+
+    def delete_metric(self, metric):
+        metric_to_delete = self.get_sla_metric(metric.name, metric.service)
         if metric_to_delete:
             self.session.delete(metric_to_delete)
             self.session.commit()
