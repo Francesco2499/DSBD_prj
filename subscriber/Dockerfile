@@ -4,6 +4,4 @@ COPY . /subscriber
 
 WORKDIR /subscriber
 
-EXPOSE 5003
-
 RUN pip install -r ./requirements.txt

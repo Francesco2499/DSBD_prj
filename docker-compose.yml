@@ -56,6 +56,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_INTERNAL
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+      KAFKA_CREATE_TOPICS: "general_topic:2:1,sports_topic:2:1,science_topic:2:1,technology_topic:2:1"
     networks:
       - default
 
@@ -203,8 +204,6 @@ services:
       - subscriber/.env
     networks:
       - default
-    ports:
-      - "5003:5003"
 
 networks:
   default:
