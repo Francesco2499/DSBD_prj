@@ -71,16 +71,17 @@ def get_forecast_violations():
     return sla_controller.get_forecast_violations(time_range)
 
 if __name__ == '__main__':
-    metric_names = ['container_memory_usage_bytes', 'container_start_time_seconds', 'container_network_transmit_errors_total']
-    existing_metrics = sla_controller.get_all_metrics().get('metrics', [])
-    existing_metric_names = [metric.get('Name') for metric in existing_metrics]
+    with app.app_context():
+        metric_names = ['container_memory_usage_bytes', 'container_start_time_seconds', 'container_network_transmit_errors_total']
+        existing_metrics = sla_controller.get_all_metrics().get('metrics', [])
+        existing_metric_names = [metric.get('Name') for metric in existing_metrics]
 
-    for metric_name in metric_names:
-        if metric_name not in existing_metric_names:
-            data = {
-                "name": metric_name
-            }
-            sla_controller.create_metric(data)
-        
-            create_metric(metric_name)
+        for metric_name in metric_names:
+            if metric_name not in existing_metric_names:
+                data = {
+                    "name": metric_name
+                }
+                sla_controller.create_metric(data)
+            
+                create_metric(metric_name)
     app.run(host='0.0.0.0', debug=True, port=int(get_configs().properties.get('port')))

@@ -6,8 +6,6 @@ from Models.metric_model import MetricModel
 from Models.metric_repository import Metric, MetricRepository
 from Models.slametric_repository import SlaMetric, SlaRepository
 from prometheus_api_client import PrometheusConnect
-from prometheus_api_client.utils import parse_datetime
-from statsmodels.tsa.arima.model import ARIMA
 from pmdarima import auto_arima
 from config import get_configs
 

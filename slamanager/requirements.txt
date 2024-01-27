@@ -5,3 +5,4 @@ SQLAlchemy
 requests
 mysqlclient
 jproperties
+pmdarima
