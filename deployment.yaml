@@ -69,6 +69,8 @@ spec:
               value: '1'
             - name: KAFKA_AUTO_CREATE_TOPICS_ENABLE
               value: "true"
+            - name: KAFKA_CREATE_TOPICS
+              value: "general_topic:2:1,sports_topic:2:1,science_topic:2:1,technology_topic:2:1"
 ---
 apiVersion: v1
 kind: Service
@@ -336,7 +338,6 @@ spec:
     - protocol: TCP
       port: 8090
       targetPort: 8090
-      apiVersion: v1
   type: LoadBalancer
 ---
 # publisher-deployment.yaml
@@ -357,6 +358,8 @@ spec:
       containers:
         - name: publisher
           image: dsbdproject/dsbd_prj-publisher:latest
+          ports:
+            - containerPort: 5001
           command: ["python", "main.py"]
           env:
             - name: IS_TEST
@@ -367,8 +370,6 @@ spec:
               value: "https://newsapi.org/v2/top-headlines"
             - name: NEWS_API_KEY
               value: "b67fa3203a504b90bd2f6297ff8aab73"
-      ports:
-        - containerPort: 5001
 ---
 apiVersion: v1
 kind: Service
@@ -400,6 +401,8 @@ spec:
       containers:
         - name: subscriber
           image: dsbdproject/dsbd_prj-subscriber:latest
+          ports:
+          - containerPort: 5003
           command: ["python", "main.py"]
           env:
             - name: isDocker
@@ -408,8 +411,6 @@ spec:
               value: "Insert Apikey"
             - name: CATEGORY_URL
               value: "http://category-service:8082/categories/preferences?category-name="
-      ports:
-        - containerPort: 5003
 ---
 apiVersion: v1
 kind: Service
@@ -596,4 +597,123 @@ spec:
     port: 9090
     targetPort: 9090
   type: NodePort
+---
+#PV e PVC for slamanager service
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: db-slamanager-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  hostPath:
+    path: "/path/to/db-slamanager-data"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-slamanager-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 1Gi
+---
+# db-slamanager-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-slamanager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-slamanager
+  template:
+    metadata:
+      labels:
+        app: db-slamanager
+    spec:
+      containers:
+      - name: db-slamanager
+        image: mysql:latest
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: root
+        - name: MYSQL_DATABASE
+          value: dsbd_slamanager
+        volumeMounts:
+        - name: slamanager-persistent-storage
+          mountPath: /var/lib/mysql
 
+      volumes:
+      - name: slamanager-persistent-storage
+        persistentVolumeClaim:
+          claimName: db-slamanager-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-slamanager-service
+spec:
+  selector:
+    app: db-slamanager
+  ports:
+    - protocol: TCP
+      port: 3308
+      targetPort: 3306
+---
+# slamanager-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slamanager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: slamanager
+  template:
+    metadata:
+      labels:
+        app: slamanager
+    spec:
+      containers:
+        - name: slamanager
+          image: dsbdproject/dsbd_prj-slamanager:latest
+          ports:
+            - containerPort: 5003
+          command: ["python", "main.py"]
+          env:
+            - name: isDocker
+              value: "true"
+            - name: MYSQL_HOST
+              value: db-slamanager-service
+            - name: MYSQL_DATABASE
+              value: slamanager
+            - name: MYSQL_ROOT_PASSWORD
+              value: root
+            - name: MYSQL_PORT
+              value: "3308"
+            - name: PROMETHEUS_URL
+              value: http://prometheus-service:9090
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: slamanager-service
+spec:
+  selector:
+    app: slamanager
+  ports:
+  - protocol: TCP
+    port: 5005
+    targetPort: 5005
+  type: NodePort
