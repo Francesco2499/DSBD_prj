@@ -324,8 +324,6 @@ spec:
           value: "http://category-service:8082/categories"
         - name: PUBLISHER_URL
           value: http://publisher-service:5001/publish_news
-        - name: SUBSCRIBER_URL
-          value: http://subscriber-service:5003/subscribe
 ---
 apiVersion: v1
 kind: Service
@@ -429,7 +427,7 @@ metadata:
   name: db-customer-pv
 spec:
   capacity:
-    storage: 1Gi
+    storage: 500M
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
@@ -448,7 +446,7 @@ spec:
   storageClassName: standard
   resources:
     requests:
-      storage: 1Gi
+      storage: 500M
 ---
 #PV e PVC for category service
 apiVersion: v1
@@ -457,7 +455,7 @@ metadata:
   name: db-category-pv
 spec:
   capacity:
-    storage: 1Gi
+    storage: 500M
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
@@ -476,7 +474,7 @@ spec:
   storageClassName: standard
   resources:
     requests:
-      storage: 1Gi
+      storage: 500M
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -605,7 +603,7 @@ metadata:
   name: db-slamanager-pv
 spec:
   capacity:
-    storage: 1Gi
+    storage: 500M
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
@@ -624,7 +622,7 @@ spec:
   storageClassName: standard
   resources:
     requests:
-      storage: 1Gi
+      storage: 500M
 ---
 # db-slamanager-deployment.yaml
 apiVersion: apps/v1
@@ -644,6 +642,8 @@ spec:
       containers:
       - name: db-slamanager
         image: mysql:latest
+        ports:
+        - containerPort: 3306
         env:
         - name: MYSQL_ROOT_PASSWORD
           value: root
@@ -697,7 +697,7 @@ spec:
             - name: MYSQL_HOST
               value: db-slamanager-service
             - name: MYSQL_DATABASE
-              value: slamanager
+              value: dsbd_slamanager
             - name: MYSQL_ROOT_PASSWORD
               value: root
             - name: MYSQL_PORT

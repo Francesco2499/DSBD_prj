@@ -91,5 +91,5 @@ if __name__ == '__main__':
                 }
                 sla_controller.create_metric(data)
 
-                create_metric(metric_name)
+
     app.run(host='0.0.0.0', debug=True, port=int(get_configs().properties.get('port')))
