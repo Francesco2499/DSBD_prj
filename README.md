@@ -67,9 +67,9 @@ Se desideri eseguire l'applicazione utilizzando Docker in un ambiente locale, se
    - Per ottenere altri indirizzi relativi ai servizi di monitoraggio delle metriche eseguire:
    
     ```bash
-     kubectl get service slamanager-service
-     kubectl get service prometheus-service
-     kubectl get service cadvisor-service
+     minikube service slamanager-service --url
+     minikube servuce prometheus-service --url
+     minikube service cadvisor-service --url
      ```
 
 ## Utilizzo
