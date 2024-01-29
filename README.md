@@ -17,7 +17,7 @@ Se desideri eseguire l'applicazione utilizzando Docker in un ambiente locale, se
 1. **Clona il repository:**
 
     ```bash
-    git clone https://tuo-repository.git
+    git clone https://github.com/Francesco2499/DSBD_prj.git
     ```
 
 2. **Build delle immagini Docker:**
@@ -38,7 +38,7 @@ Se desideri eseguire l'applicazione utilizzando Docker in un ambiente locale, se
 1. **Clona il repository:**
 
    ```bash
-   git clone https://tuo-repository.git
+   git clone https://github.com/Francesco2499/DSBD_prj.git
    ```
 
 2. **Configurazione del Cluster Kubernetes:**
