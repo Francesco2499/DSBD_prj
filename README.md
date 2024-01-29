@@ -58,8 +58,19 @@ Se desideri eseguire l'applicazione utilizzando Docker in un ambiente locale, se
      ```bash
      kubectl get service apigateway-service
      ```
+    Usando Minikube è possibile lanciare il seguente comando per riuscire a comunicare con il servizio.
 
-     Utilizza l'indirizzo IP esterno per accedere all'API Gateway.
+     ```bash
+     minikube tunnel
+     ```
+
+   - Per ottenere altri indirizzi relativi ai servizi di monitoraggio delle metriche eseguire:
+   
+    ```bash
+     kubectl get service slamanager-service
+     kubectl get service prometheus-service
+     kubectl get service cadvisor-service
+     ```
 
 ## Utilizzo
 
