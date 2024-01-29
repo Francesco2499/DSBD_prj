@@ -28,10 +28,9 @@ def forward_requests(service, subpath):
             service_endpoint = f"{CATEGORY_URL}/{subpath}"
         else:
             service_endpoint = f"{CATEGORY_URL}"
+    # only for test
     elif service == 'publisher':
         service_endpoint = f"{PUBLISHER_URL}"
-    elif service == 'subscriber':
-        service_endpoint = f"{SUBSCRIBER_URL}"
     else:
         return jsonify({"error": f"Route for service: {service} not defined"}), 404
     # Inoltra la richiesta al servizio
