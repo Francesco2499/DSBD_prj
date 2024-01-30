@@ -101,6 +101,6 @@ Per effettuare un test dell'applicativo:
     - sports
     - science
     - technology
--Sempre nella stessa folder chiamare l'endpoint"**ADD CAtegory Preference**". Qui bisogna specificare la mail (con cui ci si è registrati e autenticati) e la categoria scelta come preferenza. Il token sarà già inserito grazie alla variabile d'ambiente già definita.
+- Sempre nella stessa folder chiamare l'endpoint"**ADD CAtegory Preference**". Qui bisogna specificare la mail (con cui ci si è registrati e autenticati) e la categoria scelta come preferenza. Il token sarà già inserito grazie alla variabile d'ambiente già definita.
 - A questo punto se il publisher è in modalità test, accedere alla folder Publisher Service ed effettuare una chiamata all'endpoint 'Publish News' altrimeni attendere la normale schedulazione.
 - Attendere e verificare la ricezione delle e-mail di notifica nella propria casella di posta
