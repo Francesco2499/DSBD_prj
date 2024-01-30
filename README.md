@@ -9,6 +9,7 @@ L'applicativo simula un ecosistema di distribuzione di notizie in cui gli utenti
 - Docker
 - Kubernetes
 - ApiKey del servizio NewsAPI
+- ApiKey del servizio SendInBlue
 
 ## Installazione su Docker
 
