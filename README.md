@@ -20,14 +20,22 @@ Se desideri eseguire l'applicazione utilizzando Docker in un ambiente locale, se
     git clone https://github.com/Francesco2499/DSBD_prj.git
     ```
 
-2. **Build delle immagini Docker:**
+2. **Creare un file .env da inserire all'interno della folder del subscriber**
+    
+    ```bash
+    notepad /work_dir_example/subscriber/.env
+    # Inserire URL completo per contattare il Category Service e ottenere le email data una categoria con key -> CATEGORY_URL
+    #Inserire l'API KEY generata per utilizzare SendInBlue con key -> SENDINBLUE_API_KEY
+    ```
+
+3. **Build delle immagini Docker:**
 
     ```bash
     # Esegui il build delle immagini per tutti i servizi
     docker-compose build
     ```
 
-3. **Esegui i container Docker:**
+4. **Esegui i container Docker:**
 
     ```bash
     docker-compose up -d
@@ -41,17 +49,21 @@ Se desideri eseguire l'applicazione utilizzando Docker in un ambiente locale, se
    git clone https://github.com/Francesco2499/DSBD_prj.git
    ```
 
-2. **Configurazione del Cluster Kubernetes:**
+2. **Inserire il valore dell'ApiKey nella configurazione  Subscriber**
+    All'interno del file deployment.yaml, trovare la configurazione del Subscriber.
+    Andare a sostituire la stringa 'Insert your apikey' con la chiave generarata per utilizzare SendInBlue
+
+3. **Configurazione del Cluster Kubernetes:**
 
    Assicurati di avere un cluster Kubernetes funzionante. Puoi utilizzare strumenti come Minikube.
 
-3. **Applica i Manifesti Kubernetes:**
+4. **Applica i Manifesti Kubernetes:**
 
    ```bash
    kubectl apply -f deployment.yaml
    ```
 
-4. **Accesso ai Servizi:**
+5. **Accesso ai Servizi:**
 
    - L'API Gateway è esposto tramite un servizio LoadBalancer. Esegui il comando seguente per ottenere l'indirizzo IP esterno:
 
