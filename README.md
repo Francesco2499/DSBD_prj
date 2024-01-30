@@ -25,7 +25,8 @@ Se desideri eseguire l'applicazione utilizzando Docker in un ambiente locale, se
     ```bash
     notepad /work_dir_example/subscriber/.env
     # Inserire URL completo per contattare il Category Service e ottenere le email data una categoria con key -> CATEGORY_URL
-    #Inserire l'API KEY generata per utilizzare SendInBlue con key -> SENDINBLUE_API_KEY
+    # Inserire l'API KEY generata per utilizzare SendInBlue con key -> SENDINBLUE_API_KEY
+    # Salvare la modifica
     ```
 
 3. **Build delle immagini Docker:**
