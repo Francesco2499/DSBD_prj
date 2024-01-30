@@ -78,7 +78,7 @@ Se desideri eseguire l'applicazione utilizzando Docker in un ambiente locale, se
      ```bash
      minikube tunnel
      ```
-    Link utili: [https://minikube.sigs.k8s.io/docs/start/]
+    Link utili: https://minikube.sigs.k8s.io/docs/start/
    
    - Per ottenere altri indirizzi relativi ai servizi di monitoraggio delle metriche eseguire:
    
